@@ -1,0 +1,1120 @@
+{
+  "interns": [
+    {
+      "id": "af",
+      "name": "A. Forbes",
+      "isTrainer": true,
+      "requiresTrainer": false
+    },
+    {
+      "id": "sb",
+      "name": "S. Babolal",
+      "isTrainer": false,
+      "requiresTrainer": false
+    },
+    {
+      "id": "mp",
+      "name": "M. Powell",
+      "isTrainer": false,
+      "requiresTrainer": false
+    },
+    {
+      "id": "ns",
+      "name": "N. Smith",
+      "isTrainer": true,
+      "requiresTrainer": false
+    },
+    {
+      "id": "ss",
+      "name": "So. Salmon",
+      "isTrainer": false,
+      "requiresTrainer": false
+    },
+    {
+      "id": "tb",
+      "name": "T. Burnett",
+      "isTrainer": true,
+      "requiresTrainer": false
+    },
+    {
+      "id": "kb",
+      "name": "K. Bembridge",
+      "isTrainer": false,
+      "requiresTrainer": true
+    },
+    {
+      "id": "cc",
+      "name": "C. Clarke",
+      "isTrainer": true,
+      "requiresTrainer": false
+    }
+  ],
+  "availabilities": [
+    {
+      "id": "av1",
+      "internId": "af",
+      "day": "Monday",
+      "start": "08:00",
+      "end": "17:00",
+      "sessionType": "independent"
+    },
+    {
+      "id": "av2",
+      "internId": "sb",
+      "day": "Monday",
+      "start": "07:00",
+      "end": "11:00",
+      "sessionType": "independent"
+    },
+    {
+      "id": "av3",
+      "internId": "mp",
+      "day": "Monday",
+      "start": "08:00",
+      "end": "13:00",
+      "sessionType": "independent"
+    },
+    {
+      "id": "av4",
+      "internId": "ns",
+      "day": "Monday",
+      "start": "10:00",
+      "end": "19:00",
+      "sessionType": "independent"
+    },
+    {
+      "id": "av5",
+      "internId": "ss",
+      "day": "Monday",
+      "start": "14:00",
+      "end": "18:00",
+      "sessionType": "independent"
+    },
+    {
+      "id": "av6",
+      "internId": "tb",
+      "day": "Monday",
+      "start": "14:00",
+      "end": "18:00",
+      "sessionType": "independent"
+    },
+    {
+      "id": "av7",
+      "internId": "kb",
+      "day": "Monday",
+      "start": "13:00",
+      "end": "17:00",
+      "sessionType": "training",
+      "trainerId": "tb"
+    },
+    {
+      "id": "av8",
+      "internId": "cc",
+      "day": "Monday",
+      "start": "13:00",
+      "end": "17:00",
+      "sessionType": "independent"
+    },
+    {
+      "id": "av9",
+      "internId": "af",
+      "day": "Tuesday",
+      "start": "08:00",
+      "end": "13:00",
+      "sessionType": "independent"
+    },
+    {
+      "id": "av10",
+      "internId": "kb",
+      "day": "Tuesday",
+      "start": "10:00",
+      "end": "16:00",
+      "sessionType": "training",
+      "trainerId": "af"
+    },
+    {
+      "id": "av11",
+      "internId": "ns",
+      "day": "Tuesday",
+      "start": "10:00",
+      "end": "19:00",
+      "sessionType": "independent"
+    },
+    {
+      "id": "av12",
+      "internId": "ss",
+      "day": "Tuesday",
+      "start": "07:00",
+      "end": "13:00",
+      "sessionType": "independent"
+    }
+  ],
+  "schedule": {
+    "assignments": [
+      {
+        "id": "assign-g5kzm2f",
+        "day": "Monday",
+        "hour": 7,
+        "start": "07:00",
+        "end": "08:00",
+        "station": 1,
+        "internId": "sb",
+        "trainerId": null,
+        "type": "independent",
+        "source": "auto"
+      },
+      {
+        "id": "assign-p2bdpsu",
+        "day": "Monday",
+        "hour": 8,
+        "start": "08:00",
+        "end": "09:00",
+        "station": 1,
+        "internId": "af",
+        "trainerId": null,
+        "type": "independent",
+        "source": "auto"
+      },
+      {
+        "id": "assign-5gctzzh",
+        "day": "Monday",
+        "hour": 8,
+        "start": "08:00",
+        "end": "09:00",
+        "station": 2,
+        "internId": "mp",
+        "trainerId": null,
+        "type": "independent",
+        "source": "auto"
+      },
+      {
+        "id": "assign-7nxkv5x",
+        "day": "Monday",
+        "hour": 8,
+        "start": "08:00",
+        "end": "09:00",
+        "station": 3,
+        "internId": "sb",
+        "trainerId": null,
+        "type": "independent",
+        "source": "auto"
+      },
+      {
+        "id": "assign-ukoi1wz",
+        "day": "Monday",
+        "hour": 9,
+        "start": "09:00",
+        "end": "10:00",
+        "station": 1,
+        "internId": "af",
+        "trainerId": null,
+        "type": "independent",
+        "source": "auto"
+      },
+      {
+        "id": "assign-ebicn5n",
+        "day": "Monday",
+        "hour": 9,
+        "start": "09:00",
+        "end": "10:00",
+        "station": 2,
+        "internId": "mp",
+        "trainerId": null,
+        "type": "independent",
+        "source": "auto"
+      },
+      {
+        "id": "assign-nzionba",
+        "day": "Monday",
+        "hour": 9,
+        "start": "09:00",
+        "end": "10:00",
+        "station": 3,
+        "internId": "sb",
+        "trainerId": null,
+        "type": "independent",
+        "source": "auto"
+      },
+      {
+        "id": "assign-bqylkrg",
+        "day": "Monday",
+        "hour": 10,
+        "start": "10:00",
+        "end": "11:00",
+        "station": 1,
+        "internId": "ns",
+        "trainerId": null,
+        "type": "independent",
+        "source": "auto"
+      },
+      {
+        "id": "assign-cyt7oi3",
+        "day": "Monday",
+        "hour": 10,
+        "start": "10:00",
+        "end": "11:00",
+        "station": 2,
+        "internId": "af",
+        "trainerId": null,
+        "type": "independent",
+        "source": "auto"
+      },
+      {
+        "id": "assign-ne635l5",
+        "day": "Monday",
+        "hour": 10,
+        "start": "10:00",
+        "end": "11:00",
+        "station": 3,
+        "internId": "mp",
+        "trainerId": null,
+        "type": "independent",
+        "source": "auto"
+      },
+      {
+        "id": "assign-1utua1k",
+        "day": "Monday",
+        "hour": 10,
+        "start": "10:00",
+        "end": "11:00",
+        "station": 4,
+        "internId": "sb",
+        "trainerId": null,
+        "type": "independent",
+        "source": "auto"
+      },
+      {
+        "id": "assign-6nt08fg",
+        "day": "Monday",
+        "hour": 11,
+        "start": "11:00",
+        "end": "12:00",
+        "station": 1,
+        "internId": "ns",
+        "trainerId": null,
+        "type": "independent",
+        "source": "auto"
+      },
+      {
+        "id": "assign-col8ay9",
+        "day": "Monday",
+        "hour": 11,
+        "start": "11:00",
+        "end": "12:00",
+        "station": 2,
+        "internId": "af",
+        "trainerId": null,
+        "type": "independent",
+        "source": "auto"
+      },
+      {
+        "id": "assign-vpqo8bz",
+        "day": "Monday",
+        "hour": 11,
+        "start": "11:00",
+        "end": "12:00",
+        "station": 3,
+        "internId": "mp",
+        "trainerId": null,
+        "type": "independent",
+        "source": "auto"
+      },
+      {
+        "id": "assign-9yobvui",
+        "day": "Monday",
+        "hour": 12,
+        "start": "12:00",
+        "end": "13:00",
+        "station": 1,
+        "internId": "ns",
+        "trainerId": null,
+        "type": "independent",
+        "source": "auto"
+      },
+      {
+        "id": "assign-ro8h3q0",
+        "day": "Monday",
+        "hour": 12,
+        "start": "12:00",
+        "end": "13:00",
+        "station": 2,
+        "internId": "af",
+        "trainerId": null,
+        "type": "independent",
+        "source": "auto"
+      },
+      {
+        "id": "assign-nyiiska",
+        "day": "Monday",
+        "hour": 12,
+        "start": "12:00",
+        "end": "13:00",
+        "station": 3,
+        "internId": "mp",
+        "trainerId": null,
+        "type": "independent",
+        "source": "auto"
+      },
+      {
+        "id": "assign-en9mq6e",
+        "day": "Monday",
+        "hour": 13,
+        "start": "13:00",
+        "end": "14:00",
+        "station": 1,
+        "internId": "cc",
+        "trainerId": null,
+        "type": "independent",
+        "source": "auto"
+      },
+      {
+        "id": "assign-rsii336",
+        "day": "Monday",
+        "hour": 13,
+        "start": "13:00",
+        "end": "14:00",
+        "station": 2,
+        "internId": "ns",
+        "trainerId": null,
+        "type": "independent",
+        "source": "auto"
+      },
+      {
+        "id": "assign-tr5ffhb",
+        "day": "Monday",
+        "hour": 13,
+        "start": "13:00",
+        "end": "14:00",
+        "station": 3,
+        "internId": "af",
+        "trainerId": null,
+        "type": "independent",
+        "source": "auto"
+      },
+      {
+        "id": "assign-eemq6ou",
+        "day": "Monday",
+        "hour": 14,
+        "start": "14:00",
+        "end": "15:00",
+        "station": 1,
+        "internId": "kb",
+        "trainerId": "tb",
+        "type": "training",
+        "source": "auto"
+      },
+      {
+        "id": "assign-11lb36u",
+        "day": "Monday",
+        "hour": 14,
+        "start": "14:00",
+        "end": "15:00",
+        "station": 2,
+        "internId": "ss",
+        "trainerId": null,
+        "type": "independent",
+        "source": "auto"
+      },
+      {
+        "id": "assign-r2fkhca",
+        "day": "Monday",
+        "hour": 14,
+        "start": "14:00",
+        "end": "15:00",
+        "station": 3,
+        "internId": "ns",
+        "trainerId": null,
+        "type": "independent",
+        "source": "auto"
+      },
+      {
+        "id": "assign-fyf96zf",
+        "day": "Monday",
+        "hour": 14,
+        "start": "14:00",
+        "end": "15:00",
+        "station": 4,
+        "internId": "cc",
+        "trainerId": null,
+        "type": "independent",
+        "source": "auto"
+      },
+      {
+        "id": "assign-a6l5uhb",
+        "day": "Monday",
+        "hour": 14,
+        "start": "14:00",
+        "end": "15:00",
+        "station": 5,
+        "internId": "af",
+        "trainerId": null,
+        "type": "independent",
+        "source": "auto"
+      },
+      {
+        "id": "assign-os8oirn",
+        "day": "Monday",
+        "hour": 15,
+        "start": "15:00",
+        "end": "16:00",
+        "station": 1,
+        "internId": "kb",
+        "trainerId": "tb",
+        "type": "training",
+        "source": "auto"
+      },
+      {
+        "id": "assign-g8eijpi",
+        "day": "Monday",
+        "hour": 15,
+        "start": "15:00",
+        "end": "16:00",
+        "station": 2,
+        "internId": "ss",
+        "trainerId": null,
+        "type": "independent",
+        "source": "auto"
+      },
+      {
+        "id": "assign-6c2w6eb",
+        "day": "Monday",
+        "hour": 15,
+        "start": "15:00",
+        "end": "16:00",
+        "station": 3,
+        "internId": "ns",
+        "trainerId": null,
+        "type": "independent",
+        "source": "auto"
+      },
+      {
+        "id": "assign-8t6o448",
+        "day": "Monday",
+        "hour": 15,
+        "start": "15:00",
+        "end": "16:00",
+        "station": 4,
+        "internId": "cc",
+        "trainerId": null,
+        "type": "independent",
+        "source": "auto"
+      },
+      {
+        "id": "assign-fp1e8ad",
+        "day": "Monday",
+        "hour": 15,
+        "start": "15:00",
+        "end": "16:00",
+        "station": 5,
+        "internId": "af",
+        "trainerId": null,
+        "type": "independent",
+        "source": "auto"
+      },
+      {
+        "id": "assign-dgr7e56",
+        "day": "Monday",
+        "hour": 16,
+        "start": "16:00",
+        "end": "17:00",
+        "station": 1,
+        "internId": "kb",
+        "trainerId": "tb",
+        "type": "training",
+        "source": "auto"
+      },
+      {
+        "id": "assign-r939vkw",
+        "day": "Monday",
+        "hour": 16,
+        "start": "16:00",
+        "end": "17:00",
+        "station": 2,
+        "internId": "ss",
+        "trainerId": null,
+        "type": "independent",
+        "source": "auto"
+      },
+      {
+        "id": "assign-2bp11u6",
+        "day": "Monday",
+        "hour": 16,
+        "start": "16:00",
+        "end": "17:00",
+        "station": 3,
+        "internId": "ns",
+        "trainerId": null,
+        "type": "independent",
+        "source": "auto"
+      },
+      {
+        "id": "assign-99gbbwx",
+        "day": "Monday",
+        "hour": 16,
+        "start": "16:00",
+        "end": "17:00",
+        "station": 4,
+        "internId": "af",
+        "trainerId": null,
+        "type": "independent",
+        "source": "auto"
+      },
+      {
+        "id": "assign-ulng0s8",
+        "day": "Monday",
+        "hour": 16,
+        "start": "16:00",
+        "end": "17:00",
+        "station": 5,
+        "internId": "cc",
+        "trainerId": null,
+        "type": "independent",
+        "source": "auto"
+      },
+      {
+        "id": "assign-2jmm1ke",
+        "day": "Monday",
+        "hour": 17,
+        "start": "17:00",
+        "end": "18:00",
+        "station": 1,
+        "internId": "ss",
+        "trainerId": null,
+        "type": "independent",
+        "source": "auto"
+      },
+      {
+        "id": "assign-259jw7i",
+        "day": "Monday",
+        "hour": 17,
+        "start": "17:00",
+        "end": "18:00",
+        "station": 2,
+        "internId": "ns",
+        "trainerId": null,
+        "type": "independent",
+        "source": "auto"
+      },
+      {
+        "id": "assign-le8ody6",
+        "day": "Monday",
+        "hour": 17,
+        "start": "17:00",
+        "end": "18:00",
+        "station": 3,
+        "internId": "tb",
+        "trainerId": null,
+        "type": "independent",
+        "source": "auto"
+      },
+      {
+        "id": "assign-zbd1gy9",
+        "day": "Monday",
+        "hour": 18,
+        "start": "18:00",
+        "end": "19:00",
+        "station": 1,
+        "internId": "ns",
+        "trainerId": null,
+        "type": "independent",
+        "source": "auto"
+      },
+      {
+        "id": "assign-4jrgmnp",
+        "day": "Tuesday",
+        "hour": 7,
+        "start": "07:00",
+        "end": "08:00",
+        "station": 1,
+        "internId": "ss",
+        "trainerId": null,
+        "type": "independent",
+        "source": "auto"
+      },
+      {
+        "id": "assign-ily0cnn",
+        "day": "Tuesday",
+        "hour": 8,
+        "start": "08:00",
+        "end": "09:00",
+        "station": 1,
+        "internId": "ss",
+        "trainerId": null,
+        "type": "independent",
+        "source": "auto"
+      },
+      {
+        "id": "assign-oaywrwf",
+        "day": "Tuesday",
+        "hour": 8,
+        "start": "08:00",
+        "end": "09:00",
+        "station": 2,
+        "internId": "af",
+        "trainerId": null,
+        "type": "independent",
+        "source": "auto"
+      },
+      {
+        "id": "assign-be874wv",
+        "day": "Tuesday",
+        "hour": 9,
+        "start": "09:00",
+        "end": "10:00",
+        "station": 1,
+        "internId": "ss",
+        "trainerId": null,
+        "type": "independent",
+        "source": "auto"
+      },
+      {
+        "id": "assign-agnfpdp",
+        "day": "Tuesday",
+        "hour": 9,
+        "start": "09:00",
+        "end": "10:00",
+        "station": 2,
+        "internId": "af",
+        "trainerId": null,
+        "type": "independent",
+        "source": "auto"
+      },
+      {
+        "id": "assign-oag65fh",
+        "day": "Tuesday",
+        "hour": 10,
+        "start": "10:00",
+        "end": "11:00",
+        "station": 1,
+        "internId": "kb",
+        "trainerId": "af",
+        "type": "training",
+        "source": "auto"
+      },
+      {
+        "id": "assign-1rl2q73",
+        "day": "Tuesday",
+        "hour": 10,
+        "start": "10:00",
+        "end": "11:00",
+        "station": 2,
+        "internId": "ns",
+        "trainerId": null,
+        "type": "independent",
+        "source": "auto"
+      },
+      {
+        "id": "assign-ae8smjl",
+        "day": "Tuesday",
+        "hour": 10,
+        "start": "10:00",
+        "end": "11:00",
+        "station": 3,
+        "internId": "ss",
+        "trainerId": null,
+        "type": "independent",
+        "source": "auto"
+      },
+      {
+        "id": "assign-j5eioia",
+        "day": "Tuesday",
+        "hour": 11,
+        "start": "11:00",
+        "end": "12:00",
+        "station": 1,
+        "internId": "kb",
+        "trainerId": "af",
+        "type": "training",
+        "source": "auto"
+      },
+      {
+        "id": "assign-1cfmjxx",
+        "day": "Tuesday",
+        "hour": 11,
+        "start": "11:00",
+        "end": "12:00",
+        "station": 2,
+        "internId": "ns",
+        "trainerId": null,
+        "type": "independent",
+        "source": "auto"
+      },
+      {
+        "id": "assign-ekzz6pb",
+        "day": "Tuesday",
+        "hour": 11,
+        "start": "11:00",
+        "end": "12:00",
+        "station": 3,
+        "internId": "ss",
+        "trainerId": null,
+        "type": "independent",
+        "source": "auto"
+      },
+      {
+        "id": "assign-w21k0b2",
+        "day": "Tuesday",
+        "hour": 12,
+        "start": "12:00",
+        "end": "13:00",
+        "station": 1,
+        "internId": "kb",
+        "trainerId": "af",
+        "type": "training",
+        "source": "auto"
+      },
+      {
+        "id": "assign-1ypage9",
+        "day": "Tuesday",
+        "hour": 12,
+        "start": "12:00",
+        "end": "13:00",
+        "station": 2,
+        "internId": "ns",
+        "trainerId": null,
+        "type": "independent",
+        "source": "auto"
+      },
+      {
+        "id": "assign-k6vvzhn",
+        "day": "Tuesday",
+        "hour": 12,
+        "start": "12:00",
+        "end": "13:00",
+        "station": 3,
+        "internId": "ss",
+        "trainerId": null,
+        "type": "independent",
+        "source": "auto"
+      },
+      {
+        "id": "assign-tb2kahz",
+        "day": "Tuesday",
+        "hour": 13,
+        "start": "13:00",
+        "end": "14:00",
+        "station": 1,
+        "internId": "ns",
+        "trainerId": null,
+        "type": "independent",
+        "source": "auto"
+      },
+      {
+        "id": "assign-5py7jbe",
+        "day": "Tuesday",
+        "hour": 14,
+        "start": "14:00",
+        "end": "15:00",
+        "station": 1,
+        "internId": "ns",
+        "trainerId": null,
+        "type": "independent",
+        "source": "auto"
+      },
+      {
+        "id": "assign-jwqx6k9",
+        "day": "Tuesday",
+        "hour": 15,
+        "start": "15:00",
+        "end": "16:00",
+        "station": 1,
+        "internId": "ns",
+        "trainerId": null,
+        "type": "independent",
+        "source": "auto"
+      },
+      {
+        "id": "assign-lsqdwxw",
+        "day": "Tuesday",
+        "hour": 16,
+        "start": "16:00",
+        "end": "17:00",
+        "station": 1,
+        "internId": "ns",
+        "trainerId": null,
+        "type": "independent",
+        "source": "auto"
+      },
+      {
+        "id": "assign-akz7cxy",
+        "day": "Tuesday",
+        "hour": 17,
+        "start": "17:00",
+        "end": "18:00",
+        "station": 1,
+        "internId": "ns",
+        "trainerId": null,
+        "type": "independent",
+        "source": "auto"
+      },
+      {
+        "id": "assign-yiojoxe",
+        "day": "Tuesday",
+        "hour": 18,
+        "start": "18:00",
+        "end": "19:00",
+        "station": 1,
+        "internId": "ns",
+        "trainerId": null,
+        "type": "independent",
+        "source": "auto"
+      }
+    ],
+    "openSlots": [
+      {
+        "day": "Monday",
+        "hour": 7,
+        "start": "07:00",
+        "end": "08:00",
+        "availableStations": 8
+      },
+      {
+        "day": "Monday",
+        "hour": 8,
+        "start": "08:00",
+        "end": "09:00",
+        "availableStations": 6
+      },
+      {
+        "day": "Monday",
+        "hour": 9,
+        "start": "09:00",
+        "end": "10:00",
+        "availableStations": 6
+      },
+      {
+        "day": "Monday",
+        "hour": 10,
+        "start": "10:00",
+        "end": "11:00",
+        "availableStations": 5
+      },
+      {
+        "day": "Monday",
+        "hour": 11,
+        "start": "11:00",
+        "end": "12:00",
+        "availableStations": 6
+      },
+      {
+        "day": "Monday",
+        "hour": 12,
+        "start": "12:00",
+        "end": "13:00",
+        "availableStations": 6
+      },
+      {
+        "day": "Monday",
+        "hour": 13,
+        "start": "13:00",
+        "end": "14:00",
+        "availableStations": 6
+      },
+      {
+        "day": "Monday",
+        "hour": 14,
+        "start": "14:00",
+        "end": "15:00",
+        "availableStations": 4
+      },
+      {
+        "day": "Monday",
+        "hour": 15,
+        "start": "15:00",
+        "end": "16:00",
+        "availableStations": 4
+      },
+      {
+        "day": "Monday",
+        "hour": 16,
+        "start": "16:00",
+        "end": "17:00",
+        "availableStations": 4
+      },
+      {
+        "day": "Monday",
+        "hour": 17,
+        "start": "17:00",
+        "end": "18:00",
+        "availableStations": 6
+      },
+      {
+        "day": "Monday",
+        "hour": 18,
+        "start": "18:00",
+        "end": "19:00",
+        "availableStations": 8
+      },
+      {
+        "day": "Tuesday",
+        "hour": 7,
+        "start": "07:00",
+        "end": "08:00",
+        "availableStations": 8
+      },
+      {
+        "day": "Tuesday",
+        "hour": 8,
+        "start": "08:00",
+        "end": "09:00",
+        "availableStations": 7
+      },
+      {
+        "day": "Tuesday",
+        "hour": 9,
+        "start": "09:00",
+        "end": "10:00",
+        "availableStations": 7
+      },
+      {
+        "day": "Tuesday",
+        "hour": 10,
+        "start": "10:00",
+        "end": "11:00",
+        "availableStations": 6
+      },
+      {
+        "day": "Tuesday",
+        "hour": 11,
+        "start": "11:00",
+        "end": "12:00",
+        "availableStations": 6
+      },
+      {
+        "day": "Tuesday",
+        "hour": 12,
+        "start": "12:00",
+        "end": "13:00",
+        "availableStations": 6
+      },
+      {
+        "day": "Tuesday",
+        "hour": 13,
+        "start": "13:00",
+        "end": "14:00",
+        "availableStations": 8
+      },
+      {
+        "day": "Tuesday",
+        "hour": 14,
+        "start": "14:00",
+        "end": "15:00",
+        "availableStations": 8
+      },
+      {
+        "day": "Tuesday",
+        "hour": 15,
+        "start": "15:00",
+        "end": "16:00",
+        "availableStations": 8
+      },
+      {
+        "day": "Tuesday",
+        "hour": 16,
+        "start": "16:00",
+        "end": "17:00",
+        "availableStations": 8
+      },
+      {
+        "day": "Tuesday",
+        "hour": 17,
+        "start": "17:00",
+        "end": "18:00",
+        "availableStations": 8
+      },
+      {
+        "day": "Tuesday",
+        "hour": 18,
+        "start": "18:00",
+        "end": "19:00",
+        "availableStations": 8
+      }
+    ],
+    "totalsByIntern": [
+      {
+        "internId": "af",
+        "name": "A. Forbes",
+        "requestedHours": 14,
+        "assignedHours": 14
+      },
+      {
+        "internId": "sb",
+        "name": "S. Babolal",
+        "requestedHours": 4,
+        "assignedHours": 4
+      },
+      {
+        "internId": "mp",
+        "name": "M. Powell",
+        "requestedHours": 5,
+        "assignedHours": 5
+      },
+      {
+        "internId": "ns",
+        "name": "N. Smith",
+        "requestedHours": 18,
+        "assignedHours": 18
+      },
+      {
+        "internId": "ss",
+        "name": "So. Salmon",
+        "requestedHours": 10,
+        "assignedHours": 10
+      },
+      {
+        "internId": "tb",
+        "name": "T. Burnett",
+        "requestedHours": 4,
+        "assignedHours": 4
+      },
+      {
+        "internId": "kb",
+        "name": "K. Bembridge",
+        "requestedHours": 10,
+        "assignedHours": 6
+      },
+      {
+        "internId": "cc",
+        "name": "C. Clarke",
+        "requestedHours": 4,
+        "assignedHours": 4
+      }
+    ],
+    "waitlistedBySlot": {
+      "Monday-14": [
+        "tb"
+      ],
+      "Monday-15": [
+        "tb"
+      ],
+      "Monday-16": [
+        "tb"
+      ],
+      "Tuesday-10": [
+        "af"
+      ],
+      "Tuesday-11": [
+        "af"
+      ],
+      "Tuesday-12": [
+        "af"
+      ]
+    },
+    "daySummaries": {
+      "Monday": {
+        "assignments": 39,
+        "trainings": 3
+      },
+      "Tuesday": {
+        "assignments": 20,
+        "trainings": 3
+      }
+    },
+    "generatedAt": "2025-09-26T21:50:10.061Z"
+  },
+  "settings": {
+    "maxStations": 9,
+    "dayStart": "07:00",
+    "dayEnd": "22:00"
+  }
+}

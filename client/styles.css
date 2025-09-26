@@ -1,0 +1,336 @@
+:root {
+  color-scheme: light;
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --bg: #f6f8fb;
+  --panel: #ffffff;
+  --border: #d9e1ec;
+  --primary: #2563eb;
+  --primary-dark: #1d4ed8;
+  --secondary: #0f172a;
+  --danger: #dc2626;
+  --text: #0f172a;
+  --muted: #64748b;
+  --success: #047857;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: linear-gradient(135deg, #eff6ff 0%, #f9fafb 60%, #f1f5f9 100%);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+h1,
+ h2,
+ h3 {
+  margin: 0 0 0.5rem;
+  font-weight: 600;
+}
+
+p {
+  margin: 0;
+}
+
+.app-header {
+  padding: 1.75rem 3rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.tagline {
+  color: var(--muted);
+  font-size: 0.95rem;
+  margin-top: 0.4rem;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.timestamp {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 360px minmax(0, 1fr);
+  gap: 1.5rem;
+  padding: 2rem 3rem 3rem;
+}
+
+.panel {
+  background: var(--panel);
+  border-radius: 18px;
+  padding: 1.5rem;
+  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.panel-footer {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.legend {
+  display: inline-flex;
+  gap: 0.5rem;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 600;
+}
+
+.badge.independent {
+  background: rgba(37, 99, 235, 0.1);
+  color: var(--primary);
+}
+
+.badge.training {
+  background: rgba(220, 38, 38, 0.1);
+  color: var(--danger);
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  border-radius: 999px;
+  padding: 0.65rem 1.2rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+button.primary {
+  background: var(--primary);
+  color: white;
+}
+
+button.primary:hover {
+  background: var(--primary-dark);
+}
+
+button.secondary {
+  background: rgba(15, 23, 42, 0.08);
+  color: var(--secondary);
+}
+
+button.secondary:hover {
+  background: rgba(15, 23, 42, 0.12);
+}
+
+button.danger {
+  background: rgba(220, 38, 38, 0.12);
+  color: var(--danger);
+}
+
+button.danger:hover {
+  background: rgba(220, 38, 38, 0.2);
+}
+
+button.small {
+  padding: 0.3rem 0.75rem;
+  font-size: 0.8rem;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 0.75rem;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+input,
+ select,
+ textarea {
+  border-radius: 12px;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--border);
+  font-size: 0.95rem;
+  background: #f8fafc;
+}
+
+textarea {
+  resize: vertical;
+}
+
+.checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.availability-table {
+  max-height: 240px;
+  overflow: auto;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+.availability-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.availability-table th,
+.availability-table td {
+  padding: 0.65rem 0.85rem;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+  font-size: 0.9rem;
+}
+
+.availability-table tbody tr:nth-child(odd) {
+  background: rgba(241, 245, 249, 0.5);
+}
+
+#calendar {
+  background: #fff;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+.fc-toolbar.fc-header-toolbar {
+  padding: 0.75rem 1rem;
+}
+
+.fc-toolbar-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.fc .fc-timegrid-slot-label {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.fc .training-event {
+  background: rgba(220, 38, 38, 0.12);
+  border: 1px solid rgba(220, 38, 38, 0.45);
+  color: var(--danger);
+}
+
+.fc .independent-event {
+  background: rgba(37, 99, 235, 0.12);
+  border: 1px solid rgba(37, 99, 235, 0.4);
+  color: var(--primary);
+}
+
+.fc-event {
+  border-radius: 12px;
+  padding: 0.35rem;
+}
+
+.fc-event-main {
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.fc .fc-daygrid-event {
+  border-radius: 8px;
+  padding: 0.3rem 0.5rem;
+}
+
+#openSlots {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  font-size: 0.9rem;
+}
+
+#openSlots li {
+  background: rgba(37, 99, 235, 0.08);
+  padding: 0.5rem 0.75rem;
+  border-radius: 10px;
+  color: var(--primary);
+  display: flex;
+  justify-content: space-between;
+}
+
+.summary-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.summary-table th,
+.summary-table td {
+  text-align: left;
+  padding: 0.4rem 0.6rem;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.25);
+}
+
+.summary-table tbody tr:nth-child(even) {
+  background: rgba(226, 232, 240, 0.35);
+}
+
+.actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+@media (max-width: 1080px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+  .panel {
+    padding: 1.25rem;
+  }
+  .app-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+}
