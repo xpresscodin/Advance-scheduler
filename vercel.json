@@ -1,0 +1,14 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "version": 2,
+  "functions": {
+    "api/index.js": {
+      "runtime": "nodejs20.x"
+    }
+  },
+  "routes": [
+    { "handle": "filesystem" },
+    { "src": "/availability", "dest": "/availability.html" },
+    { "src": "/(.*)", "dest": "/index.html" }
+  ]
+}
