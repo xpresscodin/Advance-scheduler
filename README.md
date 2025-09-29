@@ -5,7 +5,22 @@ Advance Scheduler is a zero-dependency Node.js web application that collects int
 ## Features
 
 - **Availability intake** – interns submit the windows they can work, including optional trainer pairings for onboarding shifts.
+ codex/create-web-application-for-schedule-management-h21yd7
 - **Intern-only availability portal** – dedicated submission page interns can open without exposing admin scheduling tools.
+
+  codex/create-web-application-for-schedule-management-veybv8
+- **Intern-only availability portal** – dedicated submission page interns can open without exposing admin scheduling tools.
+ 
+codex/create-web-application-for-schedule-management-fa0x4a
+- **Intern-only availability portal** – dedicated submission page interns can open without exposing admin scheduling tools.
+
+codex/create-web-application-for-schedule-management-ew0h25
+- **Intern-only availability portal** – dedicated submission page interns can open without exposing admin scheduling tools.
+
+main
+ main
+  main
+main
 - **Fair auto-scheduling** – balances requested hours against the nine-station capacity on an hour-by-hour basis while keeping training pairs on the same station.
 - **Open-slot surfacing** – highlights empty stations that can be offered to interns when capacity is available.
 - **FullCalendar interface** – drag-and-drop adjustments, duplication and removal of assignments directly from the calendar.
@@ -21,6 +36,16 @@ Advance Scheduler is a zero-dependency Node.js web application that collects int
    npm start
    ```
 
+ codex/create-web-application-for-schedule-management-h21yd7
+
+ codex/create-web-application-for-schedule-management-veybv8
+ 
+ codex/create-web-application-for-schedule-management-fa0x4a
+
+codex/create-web-application-for-schedule-management-ew0h25
+ main
+  main
+main
 4. **Open the UI**:
 
    - Admin console: [http://localhost:3000](http://localhost:3000)
@@ -30,12 +55,21 @@ The API and the static frontend are served from the same Node.js process. All da
 
 ## Deploying to Vercel
 
+ codex/create-web-application-for-schedule-management-h21yd7
 Vercel can host the API as a serverless function while serving the static client from the `public/` directory configured as the public folder.
 
 1. Install the [Vercel CLI](https://vercel.com/docs/cli) and authenticate with `vercel login`.
 2. From the repository root run `vercel` and accept the defaults. The included `vercel.json`:
    - Treats `public/` as the static public directory so `index.html`, `availability.html`, and related assets are hosted automatically at the site root.
    - Relies on Vercel's default Node.js runtime for `api/index.js`, keeping all `/api/*` routes working as they do locally.
+
+Vercel can host the API as a serverless function while serving the static client from the `client/` directory configured as the public folder.
+
+1. Install the [Vercel CLI](https://vercel.com/docs/cli) and authenticate with `vercel login`.
+2. From the repository root run `vercel` and accept the defaults. The included `vercel.json`:
+   - Treats `client/` as the static public directory so `index.html`, `availability.html`, and related assets are hosted automatically at the site root.
+   - Deploys the Node handler in `api/index.js` using the Node.js 18 runtime so all `/api/*` routes work the same as they do locally.
+ main
    - Rewrites `/availability` to `availability.html` so the intern-friendly link continues to work once deployed.
    - Seeds each deployment with the sample data from `server/data/store.json` by copying it into an ephemeral `/tmp` directory when the function boots.
 3. Promote a preview to production with `vercel --prod` when you are satisfied.
@@ -49,6 +83,21 @@ Vercel can host the API as a serverless function while serving the static client
 - Training requests automatically require an available trainer before the submission is accepted.
 - Interns can queue multiple time windows in one visit and submit them together so complex days are captured in a single action.
 
+ codex/create-web-application-for-schedule-management-h21yd7
+
+  codex/create-web-application-for-schedule-management-veybv8
+ 
+ codex/create-web-application-for-schedule-management-fa0x4a
+
+
+4. **Open the UI** at [http://localhost:3000](http://localhost:3000).
+
+The API and the static frontend are served from the same Node.js process. All data is persisted inside `server/data/store.json`.
+
+main
+main
+  main
+ main
 ## API overview
 
 | Method | Endpoint | Description |
@@ -56,7 +105,23 @@ Vercel can host the API as a serverless function while serving the static client
 | GET | `/api/interns` | List interns. |
 | POST | `/api/interns` | Create a new intern (`name`, `isTrainer`, `requiresTrainer`). |
 | GET | `/api/availabilities` | List availability submissions. |
+ codex/create-web-application-for-schedule-management-h21yd7
 | POST | `/api/availabilities` | Submit availability for one or more windows. Accepts a single window (`internId`, `day`, `start`, `end`, `sessionType`, optional `trainerId`) or `{ internId, entries: [...] }` to save several at once. |
+
+ codex/create-web-application-for-schedule-management-veybv8
+| POST | `/api/availabilities` | Submit availability for one or more windows. Accepts a single window (`internId`, `day`, `start`, `end`, `sessionType`, optional `trainerId`) or `{ internId, entries: [...] }` to save several at once. |
+ 
+ codex/create-web-application-for-schedule-management-fa0x4a
+| POST | `/api/availabilities` | Submit availability for one or more windows. Accepts a single window (`internId`, `day`, `start`, `end`, `sessionType`, optional `trainerId`) or `{ internId, entries: [...] }` to save several at once. |
+
+ codex/create-web-application-for-schedule-management-ew0h25
+| POST | `/api/availabilities` | Submit availability for one or more windows. Accepts a single window (`internId`, `day`, `start`, `end`, `sessionType`, optional `trainerId`) or `{ internId, entries: [...] }` to save several at once. |
+
+| POST | `/api/availabilities` | Submit availability (`internId`, `day`, `start`, `end`, `sessionType`, optional `trainerId`). |
+main
+ main
+  main
+ main
 | DELETE | `/api/availabilities/:id` | Remove an availability entry. |
 | POST | `/api/schedule/generate` | Generate a new schedule using current availability. |
 | GET | `/api/schedule` | Fetch the latest generated schedule and open slot summary. |
