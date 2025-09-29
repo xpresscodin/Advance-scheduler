@@ -2,21 +2,35 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 
-const DATA_PATH = path.join(__dirname, 'data', 'store.json');
+const DEFAULT_DATA_PATH = path.join(__dirname, 'data', 'store.json');
+const DATA_DIR = process.env.VERCEL ? path.join('/tmp', 'advance-scheduler') : path.join(__dirname, 'data');
+const DATA_PATH = path.join(DATA_DIR, 'store.json');
 const CLIENT_DIR = path.join(__dirname, '..', 'client');
 const PORT = process.env.PORT || 3000;
 
 const DAY_ORDER = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
 function ensureStore() {
-  if (!fs.existsSync(DATA_PATH)) {
-    fs.writeFileSync(DATA_PATH, JSON.stringify({
-      interns: [],
-      availabilities: [],
-      schedule: { assignments: [], generatedAt: null, openSlots: [] },
-      settings: { maxStations: 9, dayStart: '07:00', dayEnd: '22:00' }
-    }, null, 2));
+  if (!fs.existsSync(DATA_DIR)) {
+    fs.mkdirSync(DATA_DIR, { recursive: true });
   }
+
+  if (fs.existsSync(DATA_PATH)) {
+    return;
+  }
+
+  if (process.env.VERCEL && fs.existsSync(DEFAULT_DATA_PATH)) {
+    fs.copyFileSync(DEFAULT_DATA_PATH, DATA_PATH);
+    return;
+  }
+
+  const initial = {
+    interns: [],
+    availabilities: [],
+    schedule: { assignments: [], generatedAt: null, openSlots: [] },
+    settings: { maxStations: 9, dayStart: '07:00', dayEnd: '22:00' }
+  };
+  fs.writeFileSync(DATA_PATH, JSON.stringify(initial, null, 2));
 }
 
 function readStore() {
@@ -372,7 +386,7 @@ function validateAssignmentPlacement(data, candidate, ignoreId = null) {
   return { ok: true };
 }
 
-const server = http.createServer(async (req, res) => {
+async function handleRequest(req, res) {
   const url = new URL(req.url, `http://${req.headers.host}`);
   const { pathname } = url;
 
@@ -614,8 +628,27 @@ const server = http.createServer(async (req, res) => {
     console.error('Server error', error);
     sendJSON(res, 500, { error: 'Internal server error', details: error.message });
   }
-});
+}
 
-server.listen(PORT, () => {
-  console.log(`Advance Scheduler API running on http://localhost:${PORT}`);
-});
+function createServer() {
+  return http.createServer((req, res) => {
+    handleRequest(req, res).catch((error) => {
+      console.error('Unhandled server error', error);
+      if (!res.headersSent) {
+        sendJSON(res, 500, { error: 'Internal server error', details: error.message });
+      } else {
+        res.end();
+      }
+    });
+  });
+}
+
+if (require.main === module) {
+  const server = createServer();
+  server.listen(PORT, () => {
+    console.log(`Advance Scheduler API running on http://localhost:${PORT}`);
+  });
+}
+
+module.exports = handleRequest;
+module.exports.createServer = createServer;
