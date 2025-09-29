@@ -1,12 +1,29 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "version": 2,
+codex/create-web-application-for-schedule-management-l291mj
   "functions": {
     "api/index.js": {
       "runtime": "nodejs20.x"
     }
   },
   "routes": [
+
+  "version": 2,
+
+main
+  "functions": {
+    "api/index.js": {
+      "runtime": "nodejs18.x"
+    }
+  },
+  "routes": [
+
+ main
+  "routes": [
+    { "src": "/api/(.*)", "dest": "/api/$1" },
+ main
+main
     { "handle": "filesystem" },
     { "src": "/availability", "dest": "/availability.html" },
     { "src": "/(.*)", "dest": "/index.html" }
