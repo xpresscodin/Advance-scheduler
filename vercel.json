@@ -1,13 +1,28 @@
 {
+  codex/create-web-application-for-schedule-management-veybv8
   "version": 2,
+ 
+  main
   "functions": {
     "api/index.js": {
       "runtime": "nodejs18.x"
     }
   },
+  codex/create-web-application-for-schedule-management-veybv8
+ 
+codex/create-web-application-for-schedule-management-fa0x4a
+ main
   "routes": [
     { "src": "/api/(.*)", "dest": "/api/$1" },
     { "src": "/availability", "dest": "/client/availability.html" },
     { "src": "/(.*)", "dest": "/client/$1" }
+  codex/create-web-application-for-schedule-management-veybv8
+ 
+
+  "public": "client",
+  "rewrites": [
+    { "source": "/availability", "destination": "/availability.html" }
+main
+  main
   ]
 }
