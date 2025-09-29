@@ -168,10 +168,13 @@ button:disabled {
   cursor: not-allowed;
 }
 
+ codex/create-web-application-for-schedule-management-veybv8
+ 
  codex/create-web-application-for-schedule-management-fa0x4a
 
 codex/create-web-application-for-schedule-management-ew0h25
 main
+  main
 a.link-button {
   display: inline-flex;
   align-items: center;
@@ -193,10 +196,13 @@ a.link-button.secondary:hover {
   background: rgba(15, 23, 42, 0.12);
 }
 
+  codex/create-web-application-for-schedule-management-veybv8
+ 
 codex/create-web-application-for-schedule-management-fa0x4a
 
 
 main
+ main
  main
 .form {
   display: flex;
@@ -204,9 +210,12 @@ main
   gap: 1rem;
 }
 
+  codex/create-web-application-for-schedule-management-veybv8
+ 
 codex/create-web-application-for-schedule-management-fa0x4a
 
 codex/create-web-application-for-schedule-management-ew0h25
+ main
  main
 .form-actions {
   display: flex;
@@ -220,10 +229,13 @@ codex/create-web-application-for-schedule-management-ew0h25
   flex: none;
 }
 
+  codex/create-web-application-for-schedule-management-veybv8
+ 
 codex/create-web-application-for-schedule-management-fa0x4a
 
 main
  main
+  main
 .form-row {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
@@ -236,10 +248,13 @@ main
   gap: 0.35rem;
 }
 
+ codex/create-web-application-for-schedule-management-veybv8
+ 
  codex/create-web-application-for-schedule-management-fa0x4a
 
 codex/create-web-application-for-schedule-management-ew0h25
  main
+  main
 .hint {
   font-size: 0.85rem;
   color: var(--muted);
@@ -311,11 +326,14 @@ codex/create-web-application-for-schedule-management-ew0h25
   flex-shrink: 0;
 }
 
+  codex/create-web-application-for-schedule-management-veybv8
+ 
 codex/create-web-application-for-schedule-management-fa0x4a
 
 
  main
 main
+ main
 input,
  select,
  textarea {
@@ -451,10 +469,13 @@ textarea {
   gap: 0.75rem;
 }
 
+  codex/create-web-application-for-schedule-management-veybv8
+ 
 codex/create-web-application-for-schedule-management-fa0x4a
 
 codex/create-web-application-for-schedule-management-ew0h25
  main
+  main
 .availability-layout {
   max-width: 720px;
   margin: 2.5rem auto 4rem;
@@ -510,11 +531,14 @@ codex/create-web-application-for-schedule-management-ew0h25
   padding: 0.5rem 0;
 }
 
+  codex/create-web-application-for-schedule-management-veybv8
+ 
  codex/create-web-application-for-schedule-management-fa0x4a
 
 
  main
  main
+ > main
 @media (max-width: 1080px) {
   .layout {
     grid-template-columns: 1fr;

@@ -5,6 +5,9 @@ Advance Scheduler is a zero-dependency Node.js web application that collects int
 ## Features
 
 - **Availability intake** – interns submit the windows they can work, including optional trainer pairings for onboarding shifts.
+  codex/create-web-application-for-schedule-management-veybv8
+- **Intern-only availability portal** – dedicated submission page interns can open without exposing admin scheduling tools.
+ 
 codex/create-web-application-for-schedule-management-fa0x4a
 - **Intern-only availability portal** – dedicated submission page interns can open without exposing admin scheduling tools.
 
@@ -13,6 +16,7 @@ codex/create-web-application-for-schedule-management-ew0h25
 
 main
  main
+  main
 - **Fair auto-scheduling** – balances requested hours against the nine-station capacity on an hour-by-hour basis while keeping training pairs on the same station.
 - **Open-slot surfacing** – highlights empty stations that can be offered to interns when capacity is available.
 - **FullCalendar interface** – drag-and-drop adjustments, duplication and removal of assignments directly from the calendar.
@@ -28,10 +32,13 @@ main
    npm start
    ```
 
+ codex/create-web-application-for-schedule-management-veybv8
+ 
  codex/create-web-application-for-schedule-management-fa0x4a
 
 codex/create-web-application-for-schedule-management-ew0h25
  main
+  main
 4. **Open the UI**:
 
    - Admin console: [http://localhost:3000](http://localhost:3000)
@@ -60,6 +67,8 @@ Vercel can host the API as a serverless function while serving the static client
 - Training requests automatically require an available trainer before the submission is accepted.
 - Interns can queue multiple time windows in one visit and submit them together so complex days are captured in a single action.
 
+  codex/create-web-application-for-schedule-management-veybv8
+ 
  codex/create-web-application-for-schedule-management-fa0x4a
 
 
@@ -69,6 +78,7 @@ The API and the static frontend are served from the same Node.js process. All da
 
 main
 main
+  main
 ## API overview
 
 | Method | Endpoint | Description |
@@ -76,6 +86,9 @@ main
 | GET | `/api/interns` | List interns. |
 | POST | `/api/interns` | Create a new intern (`name`, `isTrainer`, `requiresTrainer`). |
 | GET | `/api/availabilities` | List availability submissions. |
+ codex/create-web-application-for-schedule-management-veybv8
+| POST | `/api/availabilities` | Submit availability for one or more windows. Accepts a single window (`internId`, `day`, `start`, `end`, `sessionType`, optional `trainerId`) or `{ internId, entries: [...] }` to save several at once. |
+ 
  codex/create-web-application-for-schedule-management-fa0x4a
 | POST | `/api/availabilities` | Submit availability for one or more windows. Accepts a single window (`internId`, `day`, `start`, `end`, `sessionType`, optional `trainerId`) or `{ internId, entries: [...] }` to save several at once. |
 
@@ -85,6 +98,7 @@ main
 | POST | `/api/availabilities` | Submit availability (`internId`, `day`, `start`, `end`, `sessionType`, optional `trainerId`). |
 main
  main
+  main
 | DELETE | `/api/availabilities/:id` | Remove an availability entry. |
 | POST | `/api/schedule/generate` | Generate a new schedule using current availability. |
 | GET | `/api/schedule` | Fetch the latest generated schedule and open slot summary. |
