@@ -28,20 +28,6 @@ Advance Scheduler is a zero-dependency Node.js web application that collects int
 
 The API and the static frontend are served from the same Node.js process. All data is persisted inside `server/data/store.json`.
 
-## Deploying to Vercel
-
-Vercel can host the API as a serverless function while serving the static client from the `public/` directory configured as the public folder.
-
-1. Install the [Vercel CLI](https://vercel.com/docs/cli) and authenticate with `vercel login`.
-2. From the repository root run `vercel` and accept the defaults. The included `vercel.json`:
-   - Treats `public/` as the static public directory so `index.html`, `availability.html`, and related assets are hosted automatically at the site root.
-   - Relies on Vercel's default Node.js runtime for `api/index.js`, keeping all `/api/*` routes working as they do locally.
-   - Rewrites `/availability` to `availability.html` so the intern-friendly link continues to work once deployed.
-   - Seeds each deployment with the sample data from `server/data/store.json` by copying it into an ephemeral `/tmp` directory when the function boots.
-3. Promote a preview to production with `vercel --prod` when you are satisfied.
-
-> **Note:** Vercel’s serverless filesystem is ephemeral. Availability submissions and generated schedules reset whenever the function is re-created unless you replace the JSON data store with a persistent database.
-
 ## Intern availability portal
 
 - Share the `/availability.html` link with interns so they can submit their own time windows.

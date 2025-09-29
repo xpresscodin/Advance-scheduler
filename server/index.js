@@ -2,8 +2,7 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 
-const DEFAULT_DATA_PATH = path.join(__dirname, 'data', 'store.json');
-const DATA_DIR = process.env.VERCEL ? path.join('/tmp', 'advance-scheduler') : path.join(__dirname, 'data');
+const DATA_DIR = path.join(__dirname, 'data');
 const DATA_PATH = path.join(DATA_DIR, 'store.json');
 const CLIENT_DIR = path.join(__dirname, '..', 'public');
 const PORT = process.env.PORT || 3000;
@@ -16,11 +15,6 @@ function ensureStore() {
   }
 
   if (fs.existsSync(DATA_PATH)) {
-    return;
-  }
-
-  if (process.env.VERCEL && fs.existsSync(DEFAULT_DATA_PATH)) {
-    fs.copyFileSync(DEFAULT_DATA_PATH, DATA_PATH);
     return;
   }
 
@@ -649,6 +643,3 @@ if (require.main === module) {
     console.log(`Advance Scheduler API running on http://localhost:${PORT}`);
   });
 }
-
-module.exports = handleRequest;
-module.exports.createServer = createServer;
