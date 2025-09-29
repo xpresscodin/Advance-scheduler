@@ -168,6 +168,7 @@ button:disabled {
   cursor: not-allowed;
 }
 
+codex/create-web-application-for-schedule-management-ew0h25
 a.link-button {
   display: inline-flex;
   align-items: center;
@@ -189,12 +190,15 @@ a.link-button.secondary:hover {
   background: rgba(15, 23, 42, 0.12);
 }
 
+
+main
 .form {
   display: flex;
   flex-direction: column;
   gap: 1rem;
 }
 
+codex/create-web-application-for-schedule-management-ew0h25
 .form-actions {
   display: flex;
   flex-wrap: wrap;
@@ -207,6 +211,7 @@ a.link-button.secondary:hover {
   flex: none;
 }
 
+main
 .form-row {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
@@ -219,6 +224,7 @@ a.link-button.secondary:hover {
   gap: 0.35rem;
 }
 
+codex/create-web-application-for-schedule-management-ew0h25
 .hint {
   font-size: 0.85rem;
   color: var(--muted);
@@ -290,6 +296,8 @@ a.link-button.secondary:hover {
   flex-shrink: 0;
 }
 
+
+ main
 input,
  select,
  textarea {
@@ -425,6 +433,7 @@ textarea {
   gap: 0.75rem;
 }
 
+codex/create-web-application-for-schedule-management-ew0h25
 .availability-layout {
   max-width: 720px;
   margin: 2.5rem auto 4rem;
@@ -480,6 +489,8 @@ textarea {
   padding: 0.5rem 0;
 }
 
+
+ main
 @media (max-width: 1080px) {
   .layout {
     grid-template-columns: 1fr;
