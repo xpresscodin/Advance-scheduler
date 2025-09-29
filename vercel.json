@@ -5,11 +5,7 @@
     }
   },
   "public": "client",
-  "routes": [
-    { "src": "/api/(.*)", "dest": "/api/index.js" },
-    { "src": "/", "dest": "/client/index.html" },
-    { "src": "/availability", "dest": "/client/availability.html" },
-    { "src": "/availability.html", "dest": "/client/availability.html" },
-    { "src": "/(.*)", "dest": "/client/$1" }
+  "rewrites": [
+    { "source": "/availability", "destination": "/availability.html" }
   ]
 }

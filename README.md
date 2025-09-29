@@ -34,8 +34,9 @@ Vercel can host the API as a serverless function while serving the static client
 
 1. Install the [Vercel CLI](https://vercel.com/docs/cli) and authenticate with `vercel login`.
 2. From the repository root run `vercel` and accept the defaults. The included `vercel.json`:
-   - Treats `client/` as the static public directory so `index.html`, `availability.html`, and related assets are hosted automatically.
+   - Treats `client/` as the static public directory so `index.html`, `availability.html`, and related assets are hosted automatically at the site root.
    - Deploys the Node handler in `api/index.js` using the Node.js 18 runtime so all `/api/*` routes work the same as they do locally.
+   - Rewrites `/availability` to `availability.html` so the intern-friendly link continues to work once deployed.
    - Seeds each deployment with the sample data from `server/data/store.json` by copying it into an ephemeral `/tmp` directory when the function boots.
 3. Promote a preview to production with `vercel --prod` when you are satisfied.
 
