@@ -4,9 +4,15 @@
       "runtime": "nodejs18.x"
     }
   },
+codex/create-web-application-for-schedule-management-fa0x4a
   "routes": [
     { "src": "/api/(.*)", "dest": "/api/$1" },
     { "src": "/availability", "dest": "/client/availability.html" },
     { "src": "/(.*)", "dest": "/client/$1" }
+
+  "public": "client",
+  "rewrites": [
+    { "source": "/availability", "destination": "/availability.html" }
+main
   ]
 }

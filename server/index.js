@@ -2,15 +2,29 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 
+ codex/create-web-application-for-schedule-management-fa0x4a
 const DEFAULT_DATA_PATH = path.join(__dirname, 'data', 'store.json');
 const DATA_DIR = process.env.VERCEL ? path.join('/tmp', 'advance-scheduler') : path.join(__dirname, 'data');
 const DATA_PATH = path.join(DATA_DIR, 'store.json');
+
+codex/create-web-application-for-schedule-management-ew0h25
+const DEFAULT_DATA_PATH = path.join(__dirname, 'data', 'store.json');
+const DATA_DIR = process.env.VERCEL ? path.join('/tmp', 'advance-scheduler') : path.join(__dirname, 'data');
+const DATA_PATH = path.join(DATA_DIR, 'store.json');
+
+const DATA_PATH = path.join(__dirname, 'data', 'store.json');
+ main
+ main
 const CLIENT_DIR = path.join(__dirname, '..', 'client');
 const PORT = process.env.PORT || 3000;
 
 const DAY_ORDER = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
 function ensureStore() {
+codex/create-web-application-for-schedule-management-fa0x4a
+
+codex/create-web-application-for-schedule-management-ew0h25
+ main
   if (!fs.existsSync(DATA_DIR)) {
     fs.mkdirSync(DATA_DIR, { recursive: true });
   }
@@ -31,6 +45,19 @@ function ensureStore() {
     settings: { maxStations: 9, dayStart: '07:00', dayEnd: '22:00' }
   };
   fs.writeFileSync(DATA_PATH, JSON.stringify(initial, null, 2));
+ codex/create-web-application-for-schedule-management-fa0x4a
+
+
+  if (!fs.existsSync(DATA_PATH)) {
+    fs.writeFileSync(DATA_PATH, JSON.stringify({
+      interns: [],
+      availabilities: [],
+      schedule: { assignments: [], generatedAt: null, openSlots: [] },
+      settings: { maxStations: 9, dayStart: '07:00', dayEnd: '22:00' }
+    }, null, 2));
+  }
+main
+ main
 }
 
 function readStore() {
@@ -386,7 +413,15 @@ function validateAssignmentPlacement(data, candidate, ignoreId = null) {
   return { ok: true };
 }
 
+ codex/create-web-application-for-schedule-management-fa0x4a
 async function handleRequest(req, res) {
+
+codex/create-web-application-for-schedule-management-ew0h25
+async function handleRequest(req, res) {
+
+const server = http.createServer(async (req, res) => {
+main
+ main
   const url = new URL(req.url, `http://${req.headers.host}`);
   const { pathname } = url;
 
@@ -435,6 +470,10 @@ async function handleRequest(req, res) {
 
     if (pathname === '/api/availabilities' && req.method === 'POST') {
       const payload = await parseBody(req);
+codex/create-web-application-for-schedule-management-fa0x4a
+
+codex/create-web-application-for-schedule-management-ew0h25
+ main
       const data = readStore();
 
       let entries = Array.isArray(payload.entries) ? payload.entries : [];
@@ -512,6 +551,40 @@ async function handleRequest(req, res) {
       }
 
       return sendJSON(res, 201, { created });
+ codex/create-web-application-for-schedule-management-fa0x4a
+
+
+      if (!payload.internId || !payload.day || !payload.start || !payload.end) {
+        return sendJSON(res, 400, { error: 'Intern, day, start and end are required.' });
+      }
+      const data = readStore();
+      const intern = data.interns.find((item) => item.id === payload.internId);
+      if (!intern) {
+        return sendJSON(res, 404, { error: 'Intern not found.' });
+      }
+      const startNum = timeToNumber(payload.start);
+      const endNum = timeToNumber(payload.end);
+      if (endNum <= startNum) {
+        return sendJSON(res, 400, { error: 'End time must be later than start time.' });
+      }
+      if (payload.sessionType === 'training' && !payload.trainerId) {
+        return sendJSON(res, 400, { error: 'Training sessions require a trainer.' });
+      }
+      const availability = {
+        id: generateId('availability'),
+        internId: payload.internId,
+        day: payload.day,
+        start: payload.start,
+        end: payload.end,
+        sessionType: payload.sessionType === 'training' ? 'training' : 'independent',
+        trainerId: payload.sessionType === 'training' ? payload.trainerId : null,
+        notes: payload.notes || ''
+      };
+      data.availabilities.push(availability);
+      writeStore(data);
+      return sendJSON(res, 201, availability);
+ main
+ main
     }
 
     if (pathname.startsWith('/api/availabilities/') && req.method === 'DELETE') {
@@ -628,6 +701,10 @@ async function handleRequest(req, res) {
     console.error('Server error', error);
     sendJSON(res, 500, { error: 'Internal server error', details: error.message });
   }
+ codex/create-web-application-for-schedule-management-fa0x4a
+
+codex/create-web-application-for-schedule-management-ew0h25
+ main
 }
 
 function createServer() {
@@ -652,3 +729,13 @@ if (require.main === module) {
 
 module.exports = handleRequest;
 module.exports.createServer = createServer;
+codex/create-web-application-for-schedule-management-fa0x4a
+
+
+});
+
+server.listen(PORT, () => {
+  console.log(`Advance Scheduler API running on http://localhost:${PORT}`);
+});
+main
+ main
