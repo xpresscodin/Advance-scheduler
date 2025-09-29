@@ -1,0 +1,11 @@
+{
+  "functions": {
+    "api/index.js": {
+      "runtime": "nodejs18.x"
+    }
+  },
+  "public": "client",
+  "rewrites": [
+    { "source": "/availability", "destination": "/availability.html" }
+  ]
+}

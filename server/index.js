@@ -2,13 +2,41 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 
+codex/create-web-application-for-schedule-management-ew0h25
+const DEFAULT_DATA_PATH = path.join(__dirname, 'data', 'store.json');
+const DATA_DIR = process.env.VERCEL ? path.join('/tmp', 'advance-scheduler') : path.join(__dirname, 'data');
+const DATA_PATH = path.join(DATA_DIR, 'store.json');
+
 const DATA_PATH = path.join(__dirname, 'data', 'store.json');
+ main
 const CLIENT_DIR = path.join(__dirname, '..', 'client');
 const PORT = process.env.PORT || 3000;
 
 const DAY_ORDER = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
 function ensureStore() {
+codex/create-web-application-for-schedule-management-ew0h25
+  if (!fs.existsSync(DATA_DIR)) {
+    fs.mkdirSync(DATA_DIR, { recursive: true });
+  }
+
+  if (fs.existsSync(DATA_PATH)) {
+    return;
+  }
+
+  if (process.env.VERCEL && fs.existsSync(DEFAULT_DATA_PATH)) {
+    fs.copyFileSync(DEFAULT_DATA_PATH, DATA_PATH);
+    return;
+  }
+
+  const initial = {
+    interns: [],
+    availabilities: [],
+    schedule: { assignments: [], generatedAt: null, openSlots: [] },
+    settings: { maxStations: 9, dayStart: '07:00', dayEnd: '22:00' }
+  };
+  fs.writeFileSync(DATA_PATH, JSON.stringify(initial, null, 2));
+
   if (!fs.existsSync(DATA_PATH)) {
     fs.writeFileSync(DATA_PATH, JSON.stringify({
       interns: [],
@@ -17,6 +45,7 @@ function ensureStore() {
       settings: { maxStations: 9, dayStart: '07:00', dayEnd: '22:00' }
     }, null, 2));
   }
+main
 }
 
 function readStore() {
@@ -372,7 +401,11 @@ function validateAssignmentPlacement(data, candidate, ignoreId = null) {
   return { ok: true };
 }
 
+codex/create-web-application-for-schedule-management-ew0h25
+async function handleRequest(req, res) {
+
 const server = http.createServer(async (req, res) => {
+main
   const url = new URL(req.url, `http://${req.headers.host}`);
   const { pathname } = url;
 
@@ -421,6 +454,85 @@ const server = http.createServer(async (req, res) => {
 
     if (pathname === '/api/availabilities' && req.method === 'POST') {
       const payload = await parseBody(req);
+codex/create-web-application-for-schedule-management-ew0h25
+      const data = readStore();
+
+      let entries = Array.isArray(payload.entries) ? payload.entries : [];
+      if (entries.length === 0) {
+        entries = [
+          {
+            internId: payload.internId,
+            day: payload.day,
+            start: payload.start,
+            end: payload.end,
+            sessionType: payload.sessionType,
+            trainerId: payload.trainerId,
+            notes: payload.notes
+          }
+        ];
+      }
+
+      if (!entries.length) {
+        return sendJSON(res, 400, { error: 'At least one availability window is required.' });
+      }
+
+      const created = [];
+
+      for (let index = 0; index < entries.length; index += 1) {
+        const entry = entries[index] || {};
+        const internId = entry.internId || payload.internId;
+        if (!internId) {
+          return sendJSON(res, 400, { error: `Entry ${index + 1}: Intern is required.` });
+        }
+        const intern = data.interns.find((item) => item.id === internId);
+        if (!intern) {
+          return sendJSON(res, 404, { error: `Entry ${index + 1}: Intern not found.` });
+        }
+
+        const day = entry.day || payload.day;
+        const start = entry.start || payload.start;
+        const end = entry.end || payload.end;
+        if (!day || !start || !end) {
+          return sendJSON(res, 400, { error: `Entry ${index + 1}: Day, start and end are required.` });
+        }
+
+        const startNum = timeToNumber(start);
+        const endNum = timeToNumber(end);
+        if (Number.isNaN(startNum) || Number.isNaN(endNum) || endNum <= startNum) {
+          return sendJSON(res, 400, { error: `Entry ${index + 1}: End time must be later than start time.` });
+        }
+
+        const sessionTypeValue = entry.sessionType || payload.sessionType;
+        const sessionType = sessionTypeValue === 'training' ? 'training' : 'independent';
+        const trainerId = sessionType === 'training' ? entry.trainerId || payload.trainerId : null;
+        if (sessionType === 'training' && !trainerId) {
+          return sendJSON(res, 400, { error: `Entry ${index + 1}: Training sessions require a trainer.` });
+        }
+
+        const rawNotes = entry.notes !== undefined ? entry.notes : payload.notes;
+        const notes = typeof rawNotes === 'string' ? rawNotes.trim() : '';
+
+        created.push({
+          id: generateId('availability'),
+          internId,
+          day,
+          start,
+          end,
+          sessionType,
+          trainerId: sessionType === 'training' ? trainerId : null,
+          notes
+        });
+      }
+
+      data.availabilities.push(...created);
+      writeStore(data);
+
+      if (created.length === 1 && !Array.isArray(payload.entries)) {
+        return sendJSON(res, 201, created[0]);
+      }
+
+      return sendJSON(res, 201, { created });
+
       if (!payload.internId || !payload.day || !payload.start || !payload.end) {
         return sendJSON(res, 400, { error: 'Intern, day, start and end are required.' });
       }
@@ -450,6 +562,7 @@ const server = http.createServer(async (req, res) => {
       data.availabilities.push(availability);
       writeStore(data);
       return sendJSON(res, 201, availability);
+ main
     }
 
     if (pathname.startsWith('/api/availabilities/') && req.method === 'DELETE') {
@@ -566,8 +679,35 @@ const server = http.createServer(async (req, res) => {
     console.error('Server error', error);
     sendJSON(res, 500, { error: 'Internal server error', details: error.message });
   }
+codex/create-web-application-for-schedule-management-ew0h25
+}
+
+function createServer() {
+  return http.createServer((req, res) => {
+    handleRequest(req, res).catch((error) => {
+      console.error('Unhandled server error', error);
+      if (!res.headersSent) {
+        sendJSON(res, 500, { error: 'Internal server error', details: error.message });
+      } else {
+        res.end();
+      }
+    });
+  });
+}
+
+if (require.main === module) {
+  const server = createServer();
+  server.listen(PORT, () => {
+    console.log(`Advance Scheduler API running on http://localhost:${PORT}`);
+  });
+}
+
+module.exports = handleRequest;
+module.exports.createServer = createServer;
+
 });
 
 server.listen(PORT, () => {
   console.log(`Advance Scheduler API running on http://localhost:${PORT}`);
 });
+main
