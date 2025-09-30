@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Advance Scheduler</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.css" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="app-header">
+      <div>
+        <h1>Advance Scheduler</h1>
+        <p class="tagline">Balance availability requests with real-time station capacity.</p>
+      </div>
+      <div class="header-actions">
+        <a class="link-button secondary" href="availability.html">Intern portal</a>
+        <a class="link-button secondary" href="roster.html">Weekly roster</a>
+        <button id="generateSchedule" class="primary">Generate fresh schedule</button>
+        <span id="lastGenerated" class="timestamp"></span>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="panel" id="availabilityPanel">
+        <h2>1. Manage interns</h2>
+        <form id="internForm" class="form">
+          <div class="form-field">
+            <label for="internName">Intern name</label>
+            <input type="text" id="internName" name="internName" placeholder="e.g. A. Forbes" required />
+          </div>
+          <div class="form-row">
+            <label class="checkbox">
+              <input type="checkbox" id="internTrainer" />
+              <span>Trainer</span>
+            </label>
+            <label class="checkbox">
+              <input type="checkbox" id="internRequiresTrainer" />
+              <span>Requires trainer</span>
+            </label>
+          </div>
+          <button type="submit" class="secondary">Add intern</button>
+        </form>
+
+        <h2>2. Collect availability</h2>
+        <form id="availabilityForm" class="form">
+          <div class="form-field">
+            <label for="availabilityIntern">Intern</label>
+            <select id="availabilityIntern" required></select>
+          </div>
+          <div class="form-row">
+            <div class="form-field">
+              <label for="availabilityDay">Day</label>
+              <select id="availabilityDay" required>
+                <option value="Monday">Monday</option>
+                <option value="Tuesday">Tuesday</option>
+                <option value="Wednesday">Wednesday</option>
+                <option value="Thursday">Thursday</option>
+                <option value="Friday">Friday</option>
+                <option value="Saturday">Saturday</option>
+                <option value="Sunday">Sunday</option>
+              </select>
+            </div>
+            <div class="form-field">
+              <label for="availabilityStart">Start</label>
+              <input type="time" id="availabilityStart" min="06:00" max="22:00" required />
+            </div>
+            <div class="form-field">
+              <label for="availabilityEnd">End</label>
+              <input type="time" id="availabilityEnd" min="07:00" max="23:00" required />
+            </div>
+          </div>
+          <div class="form-field">
+            <label for="availabilityType">Session type</label>
+            <select id="availabilityType">
+              <option value="independent">Independent</option>
+              <option value="training">Training (requires trainer)</option>
+            </select>
+          </div>
+          <div class="form-field" id="trainerField" hidden>
+            <label for="trainerSelect">Trainer</label>
+            <select id="trainerSelect"></select>
+          </div>
+          <div class="form-field">
+            <label for="availabilityNotes">Notes</label>
+            <textarea id="availabilityNotes" rows="2" placeholder="Optional context or requests"></textarea>
+          </div>
+          <button type="submit" class="primary">Submit availability</button>
+        </form>
+
+        <div class="availability-table">
+          <div class="availability-table-header">
+            <h3>Submitted availability</h3>
+            <p class="muted">Expand an intern to review or adjust their requested hours or scan the chronological list below.</p>
+          </div>
+          <div id="availabilityAccordion" class="availability-accordion"></div>
+          <div class="availability-list">
+            <div class="availability-list-header">
+              <h4>Chronological view</h4>
+              <p class="muted">Quickly confirm who has requested each day and time slot.</p>
+            </div>
+            <div id="availabilityListWrapper" class="availability-list-wrapper" hidden>
+              <table id="availabilityListTable" class="summary-table availability-list-table" hidden>
+                <thead>
+                  <tr>
+                    <th scope="col">Intern</th>
+                    <th scope="col">Day</th>
+                    <th scope="col">Start</th>
+                    <th scope="col">End</th>
+                    <th scope="col">Session type</th>
+                    <th scope="col">Trainer</th>
+                    <th scope="col">Notes</th>
+                  </tr>
+                </thead>
+                <tbody id="availabilityListBody"></tbody>
+              </table>
+            </div>
+            <p id="availabilityListEmpty" class="muted availability-list-empty">No availability submitted yet.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel" id="schedulePanel">
+        <div class="panel-header">
+          <h2>3. Curate the floor schedule</h2>
+          <div class="legend">
+            <span class="badge independent">Independent</span>
+            <span class="badge training">Training pair</span>
+            <button id="toggleStations" class="link-button subtle" type="button">Hide station numbers</button>
+          </div>
+        </div>
+        <div id="calendar"></div>
+
+        <div class="panel-footer">
+          <div>
+            <h3>Open station slots</h3>
+            <ul id="openSlots"></ul>
+          </div>
+          <div>
+            <h3>Fairness overview</h3>
+            <table class="summary-table">
+              <thead>
+                <tr>
+                  <th>Intern</th>
+                  <th>Requested</th>
+                  <th>Assigned</th>
+                </tr>
+              </thead>
+              <tbody id="summaryTableBody"></tbody>
+            </table>
+          </div>
+          <div>
+            <h3>Daily coverage</h3>
+            <table class="summary-table">
+              <thead>
+                <tr>
+                  <th>Day</th>
+                  <th>Assignments</th>
+                  <th>Training pairs</th>
+                </tr>
+              </thead>
+              <tbody id="daySummaryBody"></tbody>
+            </table>
+          </div>
+          <div>
+            <h3>Event controls</h3>
+            <div class="actions">
+              <button id="duplicateAssignment" class="secondary" disabled>Duplicate selected</button>
+              <button id="deleteAssignment" class="danger" disabled>Delete selected</button>
+            </div>
+          </div>
+          <div>
+            <h3>Export schedule</h3>
+            <p class="muted export-note">Share the current week with leadership or import it into other tools.</p>
+            <div class="export-actions">
+              <button id="exportTeams" class="link-button secondary" type="button" disabled>Export for Teams Shifts</button>
+              <button id="exportExcel" class="link-button secondary" type="button" disabled>Download Excel CSV</button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
+    <script src="app.js" type="module"></script>
+  </body>
+</html>
