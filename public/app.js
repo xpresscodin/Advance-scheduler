@@ -3,17 +3,27 @@ const API_BASE = '';
 const WEEK_DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
 const calendarElement = document.getElementById('calendar');
-const availabilityAccordion = document.getElementById('availabilityAccordion');
+const adminAlert = document.getElementById('adminAlert');
+const adminWelcome = document.getElementById('adminWelcome');
+const adminContact = document.getElementById('adminContact');
+const togglePasswordFormButton = document.getElementById('togglePasswordForm');
+const changePasswordForm = document.getElementById('changePasswordForm');
+const cancelPasswordChangeButton = document.getElementById('cancelPasswordChange');
+const logoutButton = document.getElementById('logoutButton');
+const createAdminForm = document.getElementById('createAdminForm');
+const adminTable = document.getElementById('adminTable');
+const adminTableBody = document.getElementById('adminTableBody');
+const adminTableEmpty = document.getElementById('adminTableEmpty');
+const newAdminCredentials = document.getElementById('newAdminCredentials');
 const internForm = document.getElementById('internForm');
 const availabilityForm = document.getElementById('availabilityForm');
 const internSelect = document.getElementById('availabilityIntern');
 const trainerSelect = document.getElementById('trainerSelect');
 const trainerField = document.getElementById('trainerField');
 const availabilityTypeSelect = document.getElementById('availabilityType');
-const availabilityListWrapper = document.getElementById('availabilityListWrapper');
-const availabilityListTable = document.getElementById('availabilityListTable');
-const availabilityListBody = document.getElementById('availabilityListBody');
-const availabilityListEmpty = document.getElementById('availabilityListEmpty');
+const availabilityTable = document.getElementById('availabilityTable');
+const availabilityTableBody = document.getElementById('availabilityTableBody');
+const availabilityEmpty = document.getElementById('availabilityEmpty');
 const generateButton = document.getElementById('generateSchedule');
 const openSlotsList = document.getElementById('openSlots');
 const summaryTableBody = document.getElementById('summaryTableBody');
@@ -32,8 +42,14 @@ let schedule = { assignments: [], openSlots: [], totalsByIntern: [] };
 let calendar;
 let selectedEventId = null;
 let showStations = true;
+let currentAdmin = null;
+let requirePasswordChange = false;
 const referenceWeekStart = getReferenceWeekStart();
 const DAY_INDEX = new Map(WEEK_DAYS.map((day, index) => [day, index]));
+
+if (changePasswordForm) {
+  changePasswordForm.dataset.visible = 'false';
+}
 
 function getReferenceWeekStart() {
   const now = new Date();
@@ -43,6 +59,140 @@ function getReferenceWeekStart() {
   result.setDate(result.getDate() + diff);
   result.setHours(0, 0, 0, 0);
   return result;
+}
+
+function redirectToLogin() {
+  const redirect = encodeURIComponent(window.location.pathname || '/');
+  window.location.href = `login.html?redirect=${redirect}`;
+}
+
+async function apiRequest(path, options = {}) {
+  const init = { credentials: 'include', ...options };
+  init.headers = { ...(options.headers || {}) };
+  const response = await fetch(`${API_BASE}${path}`, init);
+  if (response.status === 401 || response.status === 403) {
+    redirectToLogin();
+    throw new Error('Unauthorized');
+  }
+  return response;
+}
+
+function showAdminAlert(message, type = 'info') {
+  if (!adminAlert) return;
+  adminAlert.textContent = message;
+  adminAlert.className = 'status-message';
+  if (type === 'success') {
+    adminAlert.classList.add('success');
+  } else if (type === 'error') {
+    adminAlert.classList.add('error');
+  }
+  adminAlert.hidden = false;
+}
+
+function clearAdminAlert() {
+  if (!adminAlert) return;
+  adminAlert.hidden = true;
+  adminAlert.textContent = '';
+  adminAlert.className = 'status-message';
+}
+
+function updateAdminOverview() {
+  if (!adminWelcome || !adminContact) {
+    return;
+  }
+
+  if (!currentAdmin) {
+    adminWelcome.textContent = '';
+    adminContact.textContent = '';
+    return;
+  }
+
+  adminWelcome.textContent = `Signed in as ${currentAdmin.name}`;
+  adminContact.textContent = currentAdmin.email;
+
+  if (togglePasswordFormButton) {
+    togglePasswordFormButton.disabled = requirePasswordChange;
+  }
+
+  if (changePasswordForm) {
+    changePasswordForm.hidden = !requirePasswordChange && changePasswordForm.dataset.visible !== 'true';
+    if (requirePasswordChange) {
+      changePasswordForm.dataset.visible = 'true';
+    }
+  }
+
+  if (requirePasswordChange) {
+    showAdminAlert('A temporary password is in use. Update it now to continue managing schedules.', 'error');
+  }
+}
+
+function renderAdminTable(admins = []) {
+  if (!adminTableBody || !adminTable || !adminTableEmpty) {
+    return;
+  }
+
+  adminTableBody.innerHTML = '';
+
+  if (!admins.length) {
+    adminTable.hidden = true;
+    adminTableEmpty.hidden = false;
+    return;
+  }
+
+  const sorted = admins.slice().sort((a, b) => a.name.localeCompare(b.name));
+  sorted.forEach((admin) => {
+    const row = document.createElement('tr');
+    const nameCell = document.createElement('td');
+    nameCell.textContent = admin.name;
+    row.appendChild(nameCell);
+
+    const emailCell = document.createElement('td');
+    emailCell.textContent = admin.email;
+    row.appendChild(emailCell);
+
+    const usernameCell = document.createElement('td');
+    usernameCell.textContent = admin.username;
+    row.appendChild(usernameCell);
+
+    const requireChangeCell = document.createElement('td');
+    requireChangeCell.textContent = admin.requirePasswordChange ? 'Yes' : 'No';
+    row.appendChild(requireChangeCell);
+
+    adminTableBody.appendChild(row);
+  });
+
+  adminTable.hidden = false;
+  adminTableEmpty.hidden = true;
+}
+
+async function loadSession() {
+  try {
+    const response = await apiRequest('/api/auth/session');
+    const data = await response.json();
+    currentAdmin = data.admin;
+    requirePasswordChange = Boolean(data.admin?.requirePasswordChange);
+    updateAdminOverview();
+  } catch (error) {
+    if (error.message === 'Unauthorized') {
+      return;
+    }
+    console.error(error);
+    showAdminAlert('Unable to load admin session.', 'error');
+  }
+}
+
+async function loadAdmins() {
+  try {
+    const response = await apiRequest('/api/auth/admins');
+    const admins = await response.json();
+    renderAdminTable(admins);
+  } catch (error) {
+    if (error.message === 'Unauthorized') {
+      return;
+    }
+    console.error(error);
+    showAdminAlert('Unable to load admin list.', 'error');
+  }
 }
 
 function dayToDate(dayName) {
@@ -150,14 +300,21 @@ function toggleStationVisibility() {
 
 async function persistEventUpdate(event) {
   const body = buildPayloadFromEvent(event);
-  const response = await fetch(`${API_BASE}/api/schedule/assignment/${event.id}`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body)
-  });
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({ error: 'Unknown error' }));
-    throw new Error(error.error || 'Failed to update assignment');
+  try {
+    const response = await apiRequest(`/api/schedule/assignment/${event.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ error: 'Unknown error' }));
+      throw new Error(error.error || 'Failed to update assignment');
+    }
+  } catch (error) {
+    if (error.message === 'Unauthorized') {
+      return;
+    }
+    throw error;
   }
   await refreshSchedule();
 }
@@ -175,12 +332,21 @@ function buildPayloadFromEvent(event) {
 }
 
 async function loadInterns() {
-  const response = await fetch(`${API_BASE}/api/interns`);
-  interns = await response.json();
-  renderInternOptions();
+  try {
+    const response = await apiRequest('/api/interns');
+    interns = await response.json();
+    renderInternOptions();
+  } catch (error) {
+    if (error.message === 'Unauthorized') {
+      return;
+    }
+    console.error(error);
+    showAdminAlert('Unable to load interns.', 'error');
+  }
 }
 
 function renderInternOptions() {
+  if (!internSelect || !trainerSelect) return;
   internSelect.innerHTML = '';
   trainerSelect.innerHTML = '<option value="">Select trainer</option>';
   interns.forEach((intern) => {
@@ -198,240 +364,125 @@ function renderInternOptions() {
 }
 
 async function loadAvailabilities() {
-  const response = await fetch(`${API_BASE}/api/availabilities`);
-  availabilities = await response.json();
-  renderAvailabilityTable();
+  try {
+    const response = await apiRequest('/api/availabilities');
+    availabilities = await response.json();
+    renderAvailabilityTable();
+  } catch (error) {
+    if (error.message === 'Unauthorized') {
+      return;
+    }
+    console.error(error);
+    showAdminAlert('Unable to load submitted availability.', 'error');
+  }
 }
 
-function renderAvailabilityList() {
-  if (!availabilityListBody || !availabilityListEmpty || !availabilityListTable || !availabilityListWrapper) {
+function renderAvailabilityTable() {
+  if (!availabilityTable || !availabilityTableBody || !availabilityEmpty) {
     return;
   }
 
-  availabilityListBody.innerHTML = '';
+  availabilityTableBody.innerHTML = '';
 
   if (!availabilities.length) {
-    availabilityListTable.hidden = true;
-    availabilityListWrapper.hidden = true;
-    availabilityListEmpty.hidden = false;
+    availabilityTable.hidden = true;
+    availabilityEmpty.hidden = false;
     return;
   }
 
   const internMap = new Map(interns.map((intern) => [intern.id, intern]));
+
   const sorted = availabilities
     .slice()
     .sort((a, b) => {
+      const internNameA = internMap.get(a.internId)?.name || '';
+      const internNameB = internMap.get(b.internId)?.name || '';
+      const nameOrder = internNameA.localeCompare(internNameB);
+      if (nameOrder !== 0) return nameOrder;
       const dayOrder = (DAY_INDEX.get(a.day) ?? 0) - (DAY_INDEX.get(b.day) ?? 0);
       if (dayOrder !== 0) return dayOrder;
-      const startOrder = a.start.localeCompare(b.start);
-      if (startOrder !== 0) return startOrder;
-      const internNameA = internMap.get(a.internId)?.name || a.internId;
-      const internNameB = internMap.get(b.internId)?.name || b.internId;
-      return internNameA.localeCompare(internNameB);
+      return a.start.localeCompare(b.start);
     });
 
   sorted.forEach((entry) => {
-    const row = document.createElement('tr');
     const intern = internMap.get(entry.internId);
     const trainer = entry.trainerId ? internMap.get(entry.trainerId) : null;
+    const row = document.createElement('tr');
 
-    const cells = [
-      intern?.name || 'Unknown intern',
-      entry.day,
-      entry.start,
-      entry.end,
-      entry.sessionType === 'training' ? 'Training' : 'Independent',
-      trainer?.name || (entry.sessionType === 'training' ? 'Trainer pending' : ''),
-      entry.notes || ''
-    ];
+    const internCell = document.createElement('td');
+    internCell.textContent = intern?.name || 'Unknown intern';
+    row.appendChild(internCell);
 
-    cells.forEach((value) => {
-      const cell = document.createElement('td');
-      cell.textContent = value;
-      row.appendChild(cell);
-    });
+    const dayCell = document.createElement('td');
+    dayCell.textContent = entry.day;
+    row.appendChild(dayCell);
 
-    availabilityListBody.appendChild(row);
+    const timeCell = document.createElement('td');
+    timeCell.textContent = `${entry.start} – ${entry.end}`;
+    row.appendChild(timeCell);
+
+    const typeCell = document.createElement('td');
+    typeCell.textContent = entry.sessionType === 'training' ? 'Training' : 'Independent';
+    row.appendChild(typeCell);
+
+    const trainerCell = document.createElement('td');
+    trainerCell.textContent = trainer?.name || (entry.sessionType === 'training' ? 'Trainer pending' : '');
+    row.appendChild(trainerCell);
+
+    const notesCell = document.createElement('td');
+    notesCell.textContent = entry.notes || '';
+    row.appendChild(notesCell);
+
+    const actionsCell = document.createElement('td');
+    actionsCell.className = 'actions';
+    const removeButton = document.createElement('button');
+    removeButton.type = 'button';
+    removeButton.className = 'danger small';
+    removeButton.textContent = 'Remove';
+    removeButton.addEventListener('click', () => deleteAvailability(entry.id));
+    actionsCell.appendChild(removeButton);
+    row.appendChild(actionsCell);
+
+    availabilityTableBody.appendChild(row);
   });
 
-  availabilityListTable.hidden = false;
-  availabilityListWrapper.hidden = false;
-  availabilityListEmpty.hidden = true;
-}
-
-function renderAvailabilityTable() {
-  if (availabilityAccordion) {
-    availabilityAccordion.innerHTML = '';
-  }
-
-  renderAvailabilityList();
-
-  if (!availabilityAccordion) return;
-
-  if (availabilities.length === 0) {
-    const empty = document.createElement('p');
-    empty.className = 'muted';
-    empty.textContent = 'No availability submitted yet.';
-    availabilityAccordion.appendChild(empty);
-    return;
-  }
-
-  const grouped = new Map();
-  availabilities.forEach((availability) => {
-    const intern = interns.find((item) => item.id === availability.internId);
-    if (!intern) return;
-    if (!grouped.has(intern.id)) {
-      grouped.set(intern.id, { intern, entries: [] });
-    }
-    grouped.get(intern.id).entries.push(availability);
-  });
-
-  const orderedGroups = Array.from(grouped.values()).sort((a, b) => a.intern.name.localeCompare(b.intern.name));
-
-  orderedGroups.forEach(({ intern, entries }) => {
-    const details = document.createElement('details');
-    details.className = 'availability-accordion-item';
-
-    const summary = document.createElement('summary');
-    summary.className = 'availability-accordion-summary';
-    const summaryContent = document.createElement('div');
-    summaryContent.className = 'availability-accordion-summary-content';
-    const summaryName = document.createElement('span');
-    summaryName.className = 'availability-accordion-name';
-    summaryName.textContent = intern.name;
-    summaryContent.appendChild(summaryName);
-
-    const previewText = buildAvailabilityPreview(entries);
-    if (previewText) {
-      const preview = document.createElement('span');
-      preview.className = 'availability-accordion-preview';
-      preview.textContent = previewText;
-      summaryContent.appendChild(preview);
-    }
-
-    summary.appendChild(summaryContent);
-
-    const summaryMeta = document.createElement('div');
-    summaryMeta.className = 'availability-accordion-meta';
-    const summaryCount = document.createElement('span');
-    summaryCount.className = 'availability-accordion-count';
-    summaryCount.textContent = `${entries.length} ${entries.length === 1 ? 'window' : 'windows'}`;
-    const chevron = document.createElement('span');
-    chevron.className = 'availability-accordion-chevron';
-    chevron.setAttribute('aria-hidden', 'true');
-    chevron.textContent = '▾';
-    summaryMeta.appendChild(summaryCount);
-    summaryMeta.appendChild(chevron);
-    summary.appendChild(summaryMeta);
-    details.appendChild(summary);
-
-    const slotList = document.createElement('ul');
-    slotList.className = 'availability-slot-list';
-
-    entries
-      .slice()
-      .sort((a, b) => {
-        if (a.day !== b.day) return a.day.localeCompare(b.day);
-        if (a.start !== b.start) return a.start.localeCompare(b.start);
-        return a.end.localeCompare(b.end);
-      })
-      .forEach((entry) => {
-        const item = document.createElement('li');
-        item.className = 'availability-slot';
-
-        const time = document.createElement('div');
-        time.className = 'availability-slot-time';
-        time.textContent = `${entry.day} · ${entry.start} – ${entry.end}`;
-        item.appendChild(time);
-
-        const type = document.createElement('div');
-        type.className = 'availability-slot-type';
-        type.textContent = entry.sessionType === 'training' ? 'Training' : 'Independent';
-        item.appendChild(type);
-
-        if (entry.notes) {
-          const notes = document.createElement('div');
-          notes.className = 'availability-slot-notes';
-          notes.textContent = entry.notes;
-          item.appendChild(notes);
-        }
-
-        const actions = document.createElement('div');
-        actions.className = 'availability-slot-actions';
-        const removeButton = document.createElement('button');
-        removeButton.type = 'button';
-        removeButton.className = 'danger small';
-        removeButton.textContent = 'Remove';
-        removeButton.addEventListener('click', (event) => {
-          event.stopPropagation();
-          deleteAvailability(entry.id);
-        });
-        actions.appendChild(removeButton);
-        item.appendChild(actions);
-
-        slotList.appendChild(item);
-      });
-
-    details.appendChild(slotList);
-    if (entries.length <= 3) {
-      details.open = true;
-    }
-    availabilityAccordion.appendChild(details);
-  });
-}
-
-function buildAvailabilityPreview(entries) {
-  if (!Array.isArray(entries) || entries.length === 0) {
-    return '';
-  }
-  const previewEntries = entries
-    .slice()
-    .sort((a, b) => {
-      const dayIndexA = DAY_INDEX.get(a.day) ?? 0;
-      const dayIndexB = DAY_INDEX.get(b.day) ?? 0;
-      const dayOrder = dayIndexA - dayIndexB;
-      if (dayOrder !== 0) return dayOrder;
-      return a.start.localeCompare(b.start);
-    })
-    .slice(0, 2)
-    .map((entry) => {
-      const dayLabel = entry.day.slice(0, 3);
-      const trainerName =
-        entry.sessionType === 'training' && entry.trainerId
-          ? interns.find((intern) => intern.id === entry.trainerId)?.name
-          : null;
-      const typeSuffix =
-        entry.sessionType === 'training'
-          ? trainerName
-            ? ` (Training w/ ${trainerName})`
-            : ' (Training)'
-          : '';
-      return `${dayLabel} ${entry.start} – ${entry.end}${typeSuffix}`;
-    });
-  const remaining = entries.length - previewEntries.length;
-  if (remaining > 0) {
-    previewEntries.push(`+${remaining} more`);
-  }
-  return previewEntries.join(', ');
+  availabilityTable.hidden = false;
+  availabilityEmpty.hidden = true;
 }
 
 async function deleteAvailability(id) {
   const confirmed = confirm('Remove this availability entry?');
   if (!confirmed) return;
-  await fetch(`${API_BASE}/api/availabilities/${id}`, { method: 'DELETE' });
-  await loadAvailabilities();
+  try {
+    await apiRequest(`/api/availabilities/${id}`, { method: 'DELETE' });
+    await loadAvailabilities();
+  } catch (error) {
+    if (error.message === 'Unauthorized') {
+      return;
+    }
+    console.error(error);
+    showAdminAlert('Unable to remove availability entry.', 'error');
+  }
 }
 
 async function refreshSchedule() {
-  const response = await fetch(`${API_BASE}/api/schedule`);
-  schedule = await response.json();
-  updateLastGenerated();
-  renderCalendar();
-  renderOpenSlots();
-  renderSummary();
-  renderDaySummary();
-  renderDailyRoster();
-  updateExportButtons();
+  try {
+    const response = await apiRequest('/api/schedule');
+    schedule = await response.json();
+    updateLastGenerated();
+    renderCalendar();
+    renderOpenSlots();
+    renderSummary();
+    renderDaySummary();
+    renderDailyRoster();
+    updateExportButtons();
+  } catch (error) {
+    if (error.message === 'Unauthorized') {
+      return;
+    }
+    console.error(error);
+    showAdminAlert('Unable to load the schedule.', 'error');
+  }
 }
 
 function renderOpenSlots() {
@@ -599,7 +650,7 @@ async function generateSchedule() {
   generateButton.disabled = true;
   generateButton.textContent = 'Generating…';
   try {
-    const response = await fetch(`${API_BASE}/api/schedule/generate`, { method: 'POST' });
+    const response = await apiRequest('/api/schedule/generate', { method: 'POST' });
     if (!response.ok) {
       const error = await response.json().catch(() => ({ error: 'Unknown error' }));
       throw new Error(error.error || 'Failed to generate schedule');
@@ -612,6 +663,9 @@ async function generateSchedule() {
     renderDaySummary();
     renderDailyRoster();
   } catch (error) {
+    if (error.message === 'Unauthorized') {
+      return;
+    }
     alert(error.message);
   } finally {
     generateButton.disabled = false;
@@ -628,19 +682,26 @@ async function createIntern(event) {
     isTrainer: document.getElementById('internTrainer').checked,
     requiresTrainer: document.getElementById('internRequiresTrainer').checked
   };
-  const response = await fetch(`${API_BASE}/api/interns`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload)
-  });
-  if (!response.ok) {
-    alert('Unable to add intern');
-    return;
+  try {
+    const response = await apiRequest('/api/interns', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ error: 'Unable to add intern' }));
+      throw new Error(error.error || 'Unable to add intern');
+    }
+    document.getElementById('internName').value = '';
+    document.getElementById('internTrainer').checked = false;
+    document.getElementById('internRequiresTrainer').checked = false;
+    await loadInterns();
+  } catch (error) {
+    if (error.message === 'Unauthorized') {
+      return;
+    }
+    alert(error.message || 'Unable to add intern');
   }
-  document.getElementById('internName').value = '';
-  document.getElementById('internTrainer').checked = false;
-  document.getElementById('internRequiresTrainer').checked = false;
-  await loadInterns();
 }
 
 async function submitAvailability(event) {
@@ -654,19 +715,25 @@ async function submitAvailability(event) {
     trainerId: availabilityTypeSelect.value === 'training' ? trainerSelect.value : null,
     notes: document.getElementById('availabilityNotes').value.trim()
   };
-  const response = await fetch(`${API_BASE}/api/availabilities`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload)
-  });
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({ error: 'Unable to submit availability' }));
-    alert(error.error || 'Unable to submit availability');
-    return;
+  try {
+    const response = await apiRequest('/api/availabilities', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ error: 'Unable to submit availability' }));
+      throw new Error(error.error || 'Unable to submit availability');
+    }
+    availabilityForm.reset();
+    trainerField.hidden = true;
+    await loadAvailabilities();
+  } catch (error) {
+    if (error.message === 'Unauthorized') {
+      return;
+    }
+    alert(error.message || 'Unable to submit availability');
   }
-  availabilityForm.reset();
-  trainerField.hidden = true;
-  await loadAvailabilities();
 }
 
 function handleSessionTypeChange() {
@@ -686,37 +753,186 @@ async function duplicateSelectedAssignment() {
   payload.internId = event.extendedProps.internId;
   payload.trainerId = event.extendedProps.trainerId;
   payload.station = event.extendedProps.station;
-  const response = await fetch(`${API_BASE}/api/schedule/assignment`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload)
-  });
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({ error: 'Unable to duplicate assignment' }));
-    alert(error.error || 'Unable to duplicate assignment');
-    return;
+  try {
+    const response = await apiRequest('/api/schedule/assignment', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ error: 'Unable to duplicate assignment' }));
+      throw new Error(error.error || 'Unable to duplicate assignment');
+    }
+    await refreshSchedule();
+  } catch (error) {
+    if (error.message === 'Unauthorized') {
+      return;
+    }
+    alert(error.message || 'Unable to duplicate assignment');
   }
-  await refreshSchedule();
 }
 
 async function deleteSelectedAssignment() {
   if (!selectedEventId) return;
   const confirmed = confirm('Delete this assignment from the schedule?');
   if (!confirmed) return;
-  const response = await fetch(`${API_BASE}/api/schedule/assignment/${selectedEventId}`, {
-    method: 'DELETE'
-  });
-  if (!response.ok) {
-    alert('Unable to delete assignment');
+  try {
+    const response = await apiRequest(`/api/schedule/assignment/${selectedEventId}`, {
+      method: 'DELETE'
+    });
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ error: 'Unable to delete assignment' }));
+      throw new Error(error.error || 'Unable to delete assignment');
+    }
+    selectedEventId = null;
+    duplicateButton.disabled = true;
+    deleteButton.disabled = true;
+    await refreshSchedule();
+  } catch (error) {
+    if (error.message === 'Unauthorized') {
+      return;
+    }
+    alert(error.message || 'Unable to delete assignment');
+  }
+}
+
+function showPasswordForm() {
+  if (!changePasswordForm) return;
+  changePasswordForm.hidden = false;
+  changePasswordForm.dataset.visible = 'true';
+  const currentInput = changePasswordForm.querySelector('#currentPassword');
+  if (currentInput) {
+    currentInput.focus();
+  }
+}
+
+function hidePasswordForm() {
+  if (!changePasswordForm || requirePasswordChange) return;
+  changePasswordForm.reset();
+  changePasswordForm.hidden = true;
+  changePasswordForm.dataset.visible = 'false';
+}
+
+async function handlePasswordChange(event) {
+  event.preventDefault();
+  clearAdminAlert();
+  const currentPassword = changePasswordForm.querySelector('#currentPassword')?.value || '';
+  const newPassword = changePasswordForm.querySelector('#newPassword')?.value || '';
+  if (newPassword.length < 8) {
+    showAdminAlert('Choose a password that is at least 8 characters long.', 'error');
     return;
   }
-  selectedEventId = null;
-  duplicateButton.disabled = true;
-  deleteButton.disabled = true;
-  await refreshSchedule();
+  try {
+    const response = await apiRequest('/api/auth/change-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ currentPassword, newPassword })
+    });
+    const result = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      throw new Error(result.error || 'Unable to update password');
+    }
+    requirePasswordChange = false;
+    if (changePasswordForm) {
+      changePasswordForm.reset();
+      if (!requirePasswordChange) {
+        changePasswordForm.hidden = true;
+        changePasswordForm.dataset.visible = 'false';
+      }
+    }
+    updateAdminOverview();
+    showAdminAlert('Password updated successfully.', 'success');
+  } catch (error) {
+    if (error.message === 'Unauthorized') {
+      return;
+    }
+    showAdminAlert(error.message || 'Unable to update password.', 'error');
+  }
+}
+
+async function handleCreateAdmin(event) {
+  event.preventDefault();
+  clearAdminAlert();
+  if (newAdminCredentials) {
+    newAdminCredentials.hidden = true;
+    newAdminCredentials.textContent = '';
+  }
+  const name = document.getElementById('adminName')?.value.trim();
+  const email = document.getElementById('adminEmail')?.value.trim();
+  const username = document.getElementById('adminUsername')?.value.trim();
+  const password = document.getElementById('adminPassword')?.value.trim();
+  if (!name || !email || !username) {
+    showAdminAlert('Provide name, email, and username for the new admin.', 'error');
+    return;
+  }
+  try {
+    const response = await apiRequest('/api/auth/admins', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email, username, password: password || undefined })
+    });
+    const result = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      throw new Error(result.error || 'Unable to create admin');
+    }
+    if (createAdminForm) {
+      createAdminForm.reset();
+    }
+    if (newAdminCredentials && result.temporaryPassword) {
+      newAdminCredentials.textContent = `Temporary password for ${result.admin?.username || username}: ${result.temporaryPassword}`;
+      newAdminCredentials.hidden = false;
+    }
+    showAdminAlert('Admin credentials created successfully.', 'success');
+    await loadAdmins();
+  } catch (error) {
+    if (error.message === 'Unauthorized') {
+      return;
+    }
+    showAdminAlert(error.message || 'Unable to create admin.', 'error');
+  }
+}
+
+async function handleLogout(event) {
+  event.preventDefault();
+  try {
+    await apiRequest('/api/auth/logout', { method: 'POST' });
+  } catch (error) {
+    // Ignore unauthorized redirect, as apiRequest already handled it
+  } finally {
+    window.location.href = 'login.html';
+  }
 }
 
 function attachEventHandlers() {
+  if (togglePasswordFormButton) {
+    togglePasswordFormButton.addEventListener('click', () => {
+      if (requirePasswordChange) {
+        showPasswordForm();
+        return;
+      }
+      const isVisible = changePasswordForm?.dataset.visible === 'true';
+      if (isVisible) {
+        hidePasswordForm();
+      } else {
+        showPasswordForm();
+      }
+    });
+  }
+  if (cancelPasswordChangeButton) {
+    cancelPasswordChangeButton.addEventListener('click', (event) => {
+      event.preventDefault();
+      hidePasswordForm();
+    });
+  }
+  if (changePasswordForm) {
+    changePasswordForm.addEventListener('submit', handlePasswordChange);
+  }
+  if (createAdminForm) {
+    createAdminForm.addEventListener('submit', handleCreateAdmin);
+  }
+  if (logoutButton) {
+    logoutButton.addEventListener('click', handleLogout);
+  }
   internForm.addEventListener('submit', createIntern);
   availabilityForm.addEventListener('submit', submitAvailability);
   availabilityTypeSelect.addEventListener('change', handleSessionTypeChange);
@@ -785,28 +1001,68 @@ function downloadCsv(filename, headers, rows) {
   document.body.removeChild(link);
 }
 
+function formatTimeLabel(time) {
+  const [hourPart, minutePart] = time.split(':');
+  let hour = Number(hourPart);
+  const minute = Number(minutePart);
+  const period = hour >= 12 ? 'P.M.' : 'A.M.';
+  hour = hour % 12 || 12;
+  const minuteLabel = minute.toString().padStart(2, '0');
+  return `${hour}:${minuteLabel} ${period}`;
+}
+
+function formatTimeRange(start, end) {
+  return `${formatTimeLabel(start)} – ${formatTimeLabel(end)}`;
+}
+
 function exportScheduleAsExcel() {
   if (!schedule.assignments || schedule.assignments.length === 0) return;
-  const headers = ['Day', 'Date', 'Start', 'End', 'Intern', 'Trainer', 'Station', 'Session type', 'Source'];
-  const rows = sortAssignments(schedule.assignments).map((assignment) => {
-    const intern = interns.find((item) => item.id === assignment.internId);
-    const trainer = assignment.trainerId
-      ? interns.find((item) => item.id === assignment.trainerId)
-      : null;
-    const startDate = buildAssignmentDate(assignment.day, assignment.start);
-    const endDate = buildAssignmentDate(assignment.day, assignment.end);
-    return [
-      assignment.day,
-      formatDate(startDate),
-      assignment.start,
-      assignment.end,
-      intern?.name || 'Unassigned',
-      trainer?.name || '',
-      assignment.station ? `Station ${assignment.station}` : '',
-      assignment.type === 'training' ? 'Training pair' : 'Independent',
-      assignment.source === 'manual' ? 'Manual edit' : 'Auto-generated'
-    ];
+
+  const headers = WEEK_DAYS.slice();
+  const internMap = new Map(interns.map((intern) => [intern.id, intern]));
+  const grouped = new Map();
+
+  sortAssignments(schedule.assignments).forEach((assignment) => {
+    const intern = internMap.get(assignment.internId);
+    const name = intern?.name || 'Unassigned';
+    if (!grouped.has(name)) {
+      grouped.set(name, {
+        name,
+        entries: new Map()
+      });
+    }
+    const group = grouped.get(name);
+    if (!group.entries.has(assignment.day)) {
+      group.entries.set(assignment.day, []);
+    }
+    group.entries.get(assignment.day).push(assignment);
   });
+
+  const rows = [];
+  const ordered = Array.from(grouped.values()).sort((a, b) => a.name.localeCompare(b.name));
+
+  ordered.forEach((group) => {
+    const nameRow = [];
+    const timeRow = [];
+
+    headers.forEach((day) => {
+      const entries = group.entries.get(day) || [];
+      if (!entries.length) {
+        nameRow.push('');
+        timeRow.push('');
+        return;
+      }
+      nameRow.push(group.name);
+      const times = entries
+        .slice()
+        .sort((a, b) => a.start.localeCompare(b.start))
+        .map((entry) => formatTimeRange(entry.start, entry.end));
+      timeRow.push(times.join('\n'));
+    });
+
+    rows.push(nameRow, timeRow);
+  });
+
   downloadCsv('advance-scheduler-week.csv', headers, rows);
 }
 
@@ -862,6 +1118,11 @@ function updateExportButtons() {
 async function bootstrap() {
   attachEventHandlers();
   updateStationToggle();
+  await loadSession();
+  if (!currentAdmin) {
+    return;
+  }
+  await loadAdmins();
   await loadInterns();
   await loadAvailabilities();
   await refreshSchedule();

@@ -24,10 +24,18 @@ Advance Scheduler is a zero-dependency Node.js web application that collects int
 
 4. **Open the UI**:
 
+   - Admin sign-in: [http://localhost:3000/login.html](http://localhost:3000/login.html) (default credentials `admin` / `ChangeMe123!` – you’ll be asked to set a new password immediately).
    - Admin console: [http://localhost:3000](http://localhost:3000)
    - Intern availability portal: [http://localhost:3000/availability.html](http://localhost:3000/availability.html)
 
 The API and the static frontend are served from the same Node.js process. All data is persisted inside `server/data/store.json`.
+
+## Admin accounts
+
+- Sign in from `/login.html` using the credentials supplied by an existing admin. The bundled seed account is `admin` / `ChangeMe123!` and is forced to change its password on first login.
+- Create additional admins from the **Admin access** panel in the console. You can provide a temporary password or let the app generate one for you.
+- After five failed login attempts the “Forgot password?” link appears. Verifying the username/email combination issues a temporary password and flags the account to change it on next sign-in.
+- Use the change-password form in the console header whenever you need to rotate your own credentials.
 
 ## Intern availability portal
 
@@ -41,23 +49,36 @@ The API and the static frontend are served from the same Node.js process. All da
 
 - After generating or updating the schedule, use the **Export schedule** card in the admin console to download:
   - **Teams Shifts CSV** – preformatted with ISO timestamps, station numbers, and trainer notes for quick import into Microsoft Teams Shifts.
-  - **Excel CSV** – organized by day with station, session type, and source metadata for lightweight analysis or sharing.
-- Buttons stay disabled until at least one assignment exists, ensuring exports always reflect the most recent schedule snapshot.
+  - **Excel CSV** – Monday through Sunday columns with each intern occupying two rows (name + scheduled windows) so the sheet mirrors the planner shown in the reference screenshots.
+    - Example row structure:
+
+      | Monday         | Tuesday        | Wednesday      | Thursday       | Friday         | Saturday | Sunday |
+      | -------------- | -------------- | -------------- | -------------- | -------------- | -------- | ------ |
+      | A. Forbes      | A. Forbes      | A. Forbes      | A. Forbes      | A. Forbes      |          |        |
+      | 8:00 A.M.–5:00 P.M. | 8:00 A.M.–1:00 P.M. | 8:00 A.M.–5:00 P.M. | 8:00 A.M.–5:00 P.M. | 8:00 A.M.–5:00 P.M. |          |        |
+  - Buttons stay disabled until at least one assignment exists, ensuring exports always reflect the most recent schedule snapshot.
 
 ## API overview
 
 | Method | Endpoint | Description |
 | ------ | -------- | ----------- |
+| POST | `/api/auth/login` | Sign in with `{ username, password }` and receive an authenticated session cookie. |
+| POST | `/api/auth/logout` | Destroy the current session. |
+| GET | `/api/auth/session` | Return the active admin profile (401 if not authenticated). |
+| POST | `/api/auth/change-password` | Update the signed-in admin password (`currentPassword`, `newPassword`). |
+| GET | `/api/auth/admins` | List admin accounts (requires authentication). |
+| POST | `/api/auth/admins` | Create an admin with `{ name, email, username, password? }`. Generates a temporary password if one is not supplied. |
+| POST | `/api/auth/request-reset` | Verify `{ username, email }` and issue a temporary password for the matching admin. |
 | GET | `/api/interns` | List interns. |
-| POST | `/api/interns` | Create a new intern (`name`, `isTrainer`, `requiresTrainer`). |
-| GET | `/api/availabilities` | List availability submissions. |
+| POST | `/api/interns` | Create a new intern (`name`, `isTrainer`, `requiresTrainer`). Requires authentication. |
+| GET | `/api/availabilities` | List availability submissions. Provide `?internId=...` to filter for a single intern (unauthenticated) or omit it to retrieve the full list (requires authentication). |
 | POST | `/api/availabilities` | Submit availability for one or more windows. Accepts a single window (`internId`, `day`, `start`, `end`, `sessionType`, optional `trainerId`) or `{ internId, entries: [...] }` to save several at once. |
 | DELETE | `/api/availabilities/:id` | Remove an availability entry. |
-| POST | `/api/schedule/generate` | Generate a new schedule using current availability. |
-| GET | `/api/schedule` | Fetch the latest generated schedule and open slot summary. |
-| PUT | `/api/schedule/assignment/:id` | Manually adjust an assignment (day, start, end, station). |
-| POST | `/api/schedule/assignment` | Create a manual assignment or duplicate an existing one. |
-| DELETE | `/api/schedule/assignment/:id` | Delete an assignment from the schedule. |
+| POST | `/api/schedule/generate` | Generate a new schedule using current availability. Requires authentication. |
+| GET | `/api/schedule` | Fetch the latest generated schedule and open slot summary. Requires authentication. |
+| PUT | `/api/schedule/assignment/:id` | Manually adjust an assignment (day, start, end, station). Requires authentication. |
+| POST | `/api/schedule/assignment` | Create a manual assignment or duplicate an existing one. Requires authentication. |
+| DELETE | `/api/schedule/assignment/:id` | Delete an assignment from the schedule. Requires authentication. |
 
 ## Scheduling logic
 

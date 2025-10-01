@@ -249,9 +249,15 @@ async function loadInterns() {
   }
 }
 
-async function loadAvailabilities() {
+async function loadAvailabilities(requestedInternId = selectedInternId) {
+  if (!requestedInternId) {
+    availabilities = [];
+    renderAvailabilityTable();
+    return;
+  }
+
   try {
-    const response = await fetch(`${API_BASE}/api/availabilities`);
+    const response = await fetch(`${API_BASE}/api/availabilities?internId=${encodeURIComponent(requestedInternId)}`);
     if (!response.ok) {
       throw new Error('Unable to load availability.');
     }
@@ -386,6 +392,7 @@ function handleInternChange() {
   renderAvailabilityTable();
   if (selectedInternId) {
     showStatus(`You are updating availability for ${internSelect.options[internSelect.selectedIndex].textContent}.`);
+    loadAvailabilities(selectedInternId);
   }
 }
 

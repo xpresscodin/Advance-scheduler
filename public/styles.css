@@ -346,7 +346,7 @@ textarea {
   background: #fff;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.75rem;
   padding: 1rem;
 }
 
@@ -356,184 +356,152 @@ textarea {
   gap: 0.35rem;
 }
 
-.availability-accordion {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  max-height: 280px;
-  overflow-y: auto;
-  padding-right: 0.25rem;
-}
-
-.availability-accordion-item {
+.availability-table-scroll {
   border: 1px solid rgba(148, 163, 184, 0.35);
   border-radius: 10px;
-  background: rgba(241, 245, 249, 0.35);
-  overflow: hidden;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  overflow: auto;
+  max-height: 300px;
 }
 
-.availability-accordion-item[open] {
-  border-color: rgba(37, 99, 235, 0.4);
-  box-shadow: 0 6px 18px -12px rgba(37, 99, 235, 0.6);
+.availability-table-scroll .summary-table {
+  margin: 0;
 }
 
-.availability-accordion-summary {
-  list-style: none;
+.availability-table-scroll thead th {
+  position: sticky;
+  top: 0;
+  background: rgba(241, 245, 249, 0.95);
+  backdrop-filter: blur(6px);
+  z-index: 1;
+}
+
+.availability-table-scroll tbody tr:hover {
+  background: rgba(37, 99, 235, 0.08);
+}
+
+.availability-table .actions {
+  text-align: right;
+}
+
+.availability-empty {
+  font-style: italic;
+}
+
+.link-button.danger {
+  background: rgba(220, 38, 38, 0.12);
+  color: var(--danger);
+}
+
+.link-button.danger:hover {
+  background: rgba(220, 38, 38, 0.2);
+}
+
+.admin-overview {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
   gap: 1rem;
-  padding: 0.85rem 1rem;
+}
+
+.admin-welcome {
+  font-size: 1.1rem;
   font-weight: 600;
-  cursor: pointer;
 }
 
-.availability-accordion-summary::-webkit-details-marker {
-  display: none;
-}
-
-.availability-accordion-summary::marker {
-  display: none;
-}
-
-.availability-accordion-name {
-  color: var(--secondary);
-}
-
-.availability-accordion-summary-content {
+.admin-overview-actions {
   display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-.availability-accordion-preview {
-  font-size: 0.85rem;
-  color: var(--muted);
-  font-weight: 500;
-}
-
-.availability-accordion-count {
-  color: var(--muted);
-  font-size: 0.85rem;
-}
-
-.availability-accordion-meta {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.availability-accordion-chevron {
-  font-size: 0.85rem;
-  color: var(--muted);
-  transition: transform 0.2s ease;
-}
-
-.availability-accordion-item[open] .availability-accordion-chevron {
-  transform: rotate(180deg);
-}
-
-.availability-slot-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  border-top: 1px solid rgba(148, 163, 184, 0.3);
-}
-
-.availability-slot {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 0.35rem 1rem;
-  padding: 0.85rem 1rem;
-  background: rgba(255, 255, 255, 0.9);
-}
-
-.availability-slot + .availability-slot {
-  border-top: 1px solid rgba(148, 163, 184, 0.2);
-}
-
-.availability-slot-time {
-  font-weight: 600;
-  color: var(--secondary);
-}
-
-.availability-slot-type {
-  font-size: 0.85rem;
-  color: var(--muted);
-}
-
-.availability-slot-notes {
-  grid-column: 1 / -1;
-  background: rgba(37, 99, 235, 0.06);
-  border-radius: 8px;
-  padding: 0.5rem 0.65rem;
-  font-size: 0.85rem;
-  color: rgba(15, 23, 42, 0.8);
-}
-
-.availability-slot-actions {
-  grid-row: 1 / span 2;
-  display: flex;
-  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
   justify-content: flex-end;
 }
 
-.availability-slot-actions .danger {
-  white-space: nowrap;
+.admin-access-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.25rem;
+  align-items: start;
 }
 
-.availability-list {
-  border-top: 1px solid rgba(148, 163, 184, 0.25);
-  padding-top: 0.75rem;
+.admin-card {
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  border-radius: 12px;
+  padding: 1.25rem;
+  background: rgba(241, 245, 249, 0.5);
   display: flex;
   flex-direction: column;
-  gap: 0.6rem;
+  gap: 1rem;
 }
 
-.availability-list-header h4 {
-  margin: 0;
-  font-size: 1.05rem;
-  color: var(--secondary);
-}
-
-.availability-list-header .muted {
-  font-size: 0.85rem;
-}
-
-.availability-list-wrapper {
-  border: 1px solid rgba(148, 163, 184, 0.35);
-  border-radius: 10px;
-  overflow: hidden;
-  max-height: 260px;
-  background: rgba(241, 245, 249, 0.6);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
-}
-
-.availability-list-wrapper table {
+.admin-card h3 {
   margin: 0;
 }
 
-.availability-list-table thead {
-  position: sticky;
-  top: 0;
-  background: rgba(226, 232, 240, 0.85);
-  backdrop-filter: blur(6px);
+.admin-card .muted {
+  font-size: 0.9rem;
 }
 
-.availability-list-table th {
-  font-size: 0.85rem;
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
-  color: var(--muted);
+.admin-card .status-message {
+  margin-top: 0.5rem;
 }
 
-.availability-list-table tbody tr:hover {
-  background: rgba(37, 99, 235, 0.08);
+.admin-card table {
+  margin-top: 0.75rem;
 }
 
-.availability-list-empty {
-  font-style: italic;
+.form.inline {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+  align-items: end;
+}
+
+.form.inline .form-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 0.75rem;
+}
+
+.auth-body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.auth-layout {
+  width: min(420px, 100%);
+}
+
+.auth-card {
+  background: var(--panel);
+  border-radius: 18px;
+  padding: 2.5rem 2.25rem;
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.14);
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.auth-card h1 {
+  text-align: center;
+  font-size: 1.75rem;
+}
+
+.auth-card .muted {
+  text-align: center;
+}
+
+.auth-card .form {
+  width: 100%;
+}
+
+#forgotPasswordLink {
+  align-self: center;
+}
+
+#resetForm {
+  border-top: 1px solid rgba(148, 163, 184, 0.25);
+  padding-top: 1rem;
 }
 
 #calendar {

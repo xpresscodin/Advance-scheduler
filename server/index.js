@@ -1,6 +1,7 @@
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
 
 const DATA_DIR = path.join(__dirname, 'data');
 const DATA_PATH = path.join(DATA_DIR, 'store.json');
@@ -8,6 +9,103 @@ const CLIENT_DIR = path.join(__dirname, '..', 'public');
 const PORT = process.env.PORT || 3000;
 
 const DAY_ORDER = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+const SESSION_DURATION_MS = 1000 * 60 * 60 * 12;
+const MAX_FAILED_ATTEMPTS = 5;
+
+const sessions = new Map();
+
+function hashPassword(password, salt = crypto.randomBytes(16).toString('hex')) {
+  const hash = crypto.scryptSync(password, salt, 64).toString('hex');
+  return { hash, salt };
+}
+
+function verifyPassword(password, admin) {
+  if (!admin?.passwordHash || !admin?.passwordSalt) {
+    return false;
+  }
+  try {
+    const derived = crypto.scryptSync(password, admin.passwordSalt, 64);
+    const stored = Buffer.from(admin.passwordHash, 'hex');
+    if (derived.length !== stored.length) {
+      return false;
+    }
+    return crypto.timingSafeEqual(derived, stored);
+  } catch (error) {
+    return false;
+  }
+}
+
+function generateTemporaryPassword() {
+  return `Temp-${crypto.randomBytes(4).toString('hex')}`;
+}
+
+function sanitizeAdmin(admin) {
+  return {
+    id: admin.id,
+    name: admin.name,
+    email: admin.email,
+    username: admin.username,
+    requirePasswordChange: Boolean(admin.requirePasswordChange)
+  };
+}
+
+function parseCookies(req) {
+  const header = req.headers.cookie;
+  if (!header) return {};
+  return header.split(';').reduce((acc, part) => {
+    const [name, ...valueParts] = part.trim().split('=');
+    if (!name) return acc;
+    acc[name] = decodeURIComponent(valueParts.join('='));
+    return acc;
+  }, {});
+}
+
+function createSession(adminId) {
+  const sessionId = crypto.randomBytes(18).toString('hex');
+  const expiresAt = Date.now() + SESSION_DURATION_MS;
+  sessions.set(sessionId, { adminId, expiresAt });
+  return { sessionId, expiresAt };
+}
+
+function destroySession(sessionId) {
+  if (sessionId) {
+    sessions.delete(sessionId);
+  }
+}
+
+function getSessionInfo(req, data) {
+  const cookies = parseCookies(req);
+  const sid = cookies.sid;
+  if (!sid) return null;
+  const entry = sessions.get(sid);
+  if (!entry) return null;
+  if (entry.expiresAt < Date.now()) {
+    sessions.delete(sid);
+    return null;
+  }
+  entry.expiresAt = Date.now() + SESSION_DURATION_MS;
+  const admin = (data.admins || []).find((item) => item.id === entry.adminId);
+  if (!admin) {
+    sessions.delete(sid);
+    return null;
+  }
+  return { admin, sessionId: sid };
+}
+
+function createSeedAdmin() {
+  const { hash, salt } = hashPassword('ChangeMe123!');
+  return {
+    id: 'admin-default',
+    name: 'Administrator',
+    email: 'admin@example.com',
+    username: 'admin',
+    passwordHash: hash,
+    passwordSalt: salt,
+    requirePasswordChange: true,
+    failedAttempts: 0,
+    lockedUntil: null
+  };
+}
 
 function ensureStore() {
   if (!fs.existsSync(DATA_DIR)) {
@@ -22,7 +120,8 @@ function ensureStore() {
     interns: [],
     availabilities: [],
     schedule: { assignments: [], generatedAt: null, openSlots: [] },
-    settings: { maxStations: 9, dayStart: '07:00', dayEnd: '22:00' }
+    settings: { maxStations: 9, dayStart: '07:00', dayEnd: '22:00' },
+    admins: [createSeedAdmin()]
   };
   fs.writeFileSync(DATA_PATH, JSON.stringify(initial, null, 2));
 }
@@ -30,7 +129,46 @@ function ensureStore() {
 function readStore() {
   ensureStore();
   const raw = fs.readFileSync(DATA_PATH, 'utf8');
-  return JSON.parse(raw);
+  const data = JSON.parse(raw);
+  let updated = false;
+
+  if (!data.settings) {
+    data.settings = { maxStations: 9, dayStart: '07:00', dayEnd: '22:00' };
+    updated = true;
+  }
+
+  if (!data.schedule) {
+    data.schedule = { assignments: [], generatedAt: null, openSlots: [] };
+    updated = true;
+  }
+
+  if (!Array.isArray(data.admins) || data.admins.length === 0) {
+    data.admins = [createSeedAdmin()];
+    updated = true;
+  } else {
+    data.admins = data.admins.map((admin) => {
+      const result = { ...admin };
+      if (!result.id) {
+        result.id = generateId('admin');
+        updated = true;
+      }
+      if (typeof result.failedAttempts !== 'number') {
+        result.failedAttempts = 0;
+        updated = true;
+      }
+      if (result.requirePasswordChange === undefined) {
+        result.requirePasswordChange = false;
+        updated = true;
+      }
+      return result;
+    });
+  }
+
+  if (updated) {
+    writeStore(data);
+  }
+
+  return data;
 }
 
 function writeStore(data) {
@@ -61,23 +199,19 @@ function parseBody(req) {
   });
 }
 
-function sendJSON(res, statusCode, data) {
+function sendJSON(res, statusCode, data, headers = {}) {
   const payload = JSON.stringify(data);
   res.writeHead(statusCode, {
     'Content-Type': 'application/json',
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE,OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type'
+    ...headers
   });
   res.end(payload);
 }
 
-function sendText(res, statusCode, text) {
+function sendText(res, statusCode, text, headers = {}) {
   res.writeHead(statusCode, {
     'Content-Type': 'text/plain',
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE,OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type'
+    ...headers
   });
   res.end(text);
 }
@@ -399,29 +533,188 @@ async function handleRequest(req, res) {
     res.writeHead(200, {
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE,OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type'
+      'Access-Control-Allow-Headers': 'Content-Type',
+      'Access-Control-Allow-Credentials': 'true'
     });
     res.end();
     return;
   }
 
+  let data;
   try {
+    data = readStore();
+  } catch (error) {
+    console.error('Unable to read data store', error);
+    sendJSON(res, 500, { error: 'Unable to read data store.' });
+    return;
+  }
+
+  const sessionInfo = getSessionInfo(req, data);
+  const currentAdmin = sessionInfo?.admin || null;
+  const sessionId = sessionInfo?.sessionId || null;
+
+  try {
+    if (pathname === '/api/auth/login' && req.method === 'POST') {
+      const payload = await parseBody(req);
+      const username = (payload.username || '').trim();
+      const password = payload.password || '';
+      if (!username || !password) {
+        return sendJSON(res, 400, { error: 'Username and password are required.' });
+      }
+      const admin = data.admins.find((item) => item.username.toLowerCase() === username.toLowerCase());
+      if (!admin || !verifyPassword(password, admin)) {
+        if (admin) {
+          admin.failedAttempts = Math.min(MAX_FAILED_ATTEMPTS, (admin.failedAttempts || 0) + 1);
+          writeStore(data);
+          return sendJSON(res, 401, {
+            error: 'Invalid username or password.',
+            failedAttempts: admin.failedAttempts
+          });
+        }
+        return sendJSON(res, 401, { error: 'Invalid username or password.', failedAttempts: 0 });
+      }
+
+      admin.failedAttempts = 0;
+      writeStore(data);
+      const { sessionId: newSessionId } = createSession(admin.id);
+      return sendJSON(
+        res,
+        200,
+        { admin: sanitizeAdmin(admin) },
+        {
+          'Set-Cookie': `sid=${newSessionId}; HttpOnly; Path=/; Max-Age=${Math.floor(SESSION_DURATION_MS / 1000)}; SameSite=Lax`
+        }
+      );
+    }
+
+    if (pathname === '/api/auth/logout' && req.method === 'POST') {
+      destroySession(sessionId);
+      return sendJSON(
+        res,
+        200,
+        { success: true },
+        { 'Set-Cookie': 'sid=; HttpOnly; Path=/; Max-Age=0; SameSite=Lax' }
+      );
+    }
+
+    if (pathname === '/api/auth/session' && req.method === 'GET') {
+      if (!currentAdmin) {
+        return sendJSON(res, 401, { error: 'Not authenticated.' });
+      }
+      return sendJSON(res, 200, { admin: sanitizeAdmin(currentAdmin) });
+    }
+
+    if (pathname === '/api/auth/change-password' && req.method === 'POST') {
+      if (!currentAdmin) {
+        return sendJSON(res, 401, { error: 'Not authenticated.' });
+      }
+      const payload = await parseBody(req);
+      const currentPassword = payload.currentPassword || '';
+      const newPassword = payload.newPassword || '';
+      if (!newPassword || newPassword.length < 8) {
+        return sendJSON(res, 400, { error: 'New password must be at least 8 characters long.' });
+      }
+      if (!verifyPassword(currentPassword, currentAdmin)) {
+        return sendJSON(res, 400, { error: 'Current password is incorrect.' });
+      }
+      const { hash, salt } = hashPassword(newPassword);
+      currentAdmin.passwordHash = hash;
+      currentAdmin.passwordSalt = salt;
+      currentAdmin.requirePasswordChange = false;
+      currentAdmin.failedAttempts = 0;
+      writeStore(data);
+      return sendJSON(res, 200, { success: true });
+    }
+
+    if (pathname === '/api/auth/admins' && req.method === 'GET') {
+      if (!currentAdmin) {
+        return sendJSON(res, 401, { error: 'Not authenticated.' });
+      }
+      const admins = (data.admins || []).map(sanitizeAdmin).sort((a, b) => a.name.localeCompare(b.name));
+      return sendJSON(res, 200, admins);
+    }
+
+    if (pathname === '/api/auth/admins' && req.method === 'POST') {
+      if (!currentAdmin) {
+        return sendJSON(res, 401, { error: 'Not authenticated.' });
+      }
+      const payload = await parseBody(req);
+      const name = (payload.name || '').trim();
+      const email = (payload.email || '').trim();
+      const username = (payload.username || '').trim();
+      const suppliedPassword = (payload.password || '').trim();
+
+      if (!name || !email || !username) {
+        return sendJSON(res, 400, { error: 'Name, email, and username are required.' });
+      }
+
+      const existing = data.admins.find((admin) => admin.username.toLowerCase() === username.toLowerCase());
+      if (existing) {
+        return sendJSON(res, 409, { error: 'An admin with that username already exists.' });
+      }
+
+      const temporaryPassword = suppliedPassword && suppliedPassword.length >= 8 ? suppliedPassword : generateTemporaryPassword();
+      const { hash, salt } = hashPassword(temporaryPassword);
+
+      const newAdmin = {
+        id: generateId('admin'),
+        name,
+        email,
+        username,
+        passwordHash: hash,
+        passwordSalt: salt,
+        requirePasswordChange: true,
+        failedAttempts: 0,
+        lockedUntil: null
+      };
+
+      data.admins.push(newAdmin);
+      writeStore(data);
+      return sendJSON(res, 201, { admin: sanitizeAdmin(newAdmin), temporaryPassword });
+    }
+
+    if (pathname === '/api/auth/request-reset' && req.method === 'POST') {
+      const payload = await parseBody(req);
+      const username = (payload.username || '').trim();
+      const email = (payload.email || '').trim();
+      if (!username || !email) {
+        return sendJSON(res, 400, { error: 'Username and email are required.' });
+      }
+      const admin = data.admins.find(
+        (item) => item.username.toLowerCase() === username.toLowerCase() && item.email.toLowerCase() === email.toLowerCase()
+      );
+      if (!admin) {
+        return sendJSON(res, 404, { error: 'No admin account matches that username and email.' });
+      }
+      const temporaryPassword = generateTemporaryPassword();
+      const { hash, salt } = hashPassword(temporaryPassword);
+      admin.passwordHash = hash;
+      admin.passwordSalt = salt;
+      admin.requirePasswordChange = true;
+      admin.failedAttempts = 0;
+      writeStore(data);
+      return sendJSON(res, 200, { message: 'Temporary password issued.', temporaryPassword });
+    }
+
     if (pathname === '/api/settings' && req.method === 'GET') {
-      const data = readStore();
+      if (!currentAdmin) {
+        return sendJSON(res, 401, { error: 'Not authenticated.' });
+      }
       return sendJSON(res, 200, data.settings || {});
     }
 
     if (pathname === '/api/interns' && req.method === 'GET') {
-      const data = readStore();
       return sendJSON(res, 200, data.interns || []);
     }
 
     if (pathname === '/api/interns' && req.method === 'POST') {
+      if (!currentAdmin) {
+        return sendJSON(res, 401, { error: 'Not authenticated.' });
+      }
       const payload = await parseBody(req);
       if (!payload.name) {
         return sendJSON(res, 400, { error: 'Name is required.' });
       }
-      const data = readStore();
       const intern = {
         id: generateId('intern'),
         name: payload.name,
@@ -434,13 +727,19 @@ async function handleRequest(req, res) {
     }
 
     if (pathname === '/api/availabilities' && req.method === 'GET') {
-      const data = readStore();
+      const internId = url.searchParams.get('internId');
+      if (internId) {
+        const filtered = (data.availabilities || []).filter((entry) => entry.internId === internId);
+        return sendJSON(res, 200, filtered);
+      }
+      if (!currentAdmin) {
+        return sendJSON(res, 401, { error: 'Not authenticated.' });
+      }
       return sendJSON(res, 200, data.availabilities || []);
     }
 
     if (pathname === '/api/availabilities' && req.method === 'POST') {
       const payload = await parseBody(req);
-      const data = readStore();
 
       let entries = Array.isArray(payload.entries) ? payload.entries : [];
       if (entries.length === 0) {
@@ -521,7 +820,6 @@ async function handleRequest(req, res) {
 
     if (pathname.startsWith('/api/availabilities/') && req.method === 'DELETE') {
       const id = pathname.split('/').pop();
-      const data = readStore();
       const before = data.availabilities.length;
       data.availabilities = data.availabilities.filter((item) => item.id !== id);
       if (data.availabilities.length === before) {
@@ -532,12 +830,16 @@ async function handleRequest(req, res) {
     }
 
     if (pathname === '/api/schedule' && req.method === 'GET') {
-      const data = readStore();
+      if (!currentAdmin) {
+        return sendJSON(res, 401, { error: 'Not authenticated.' });
+      }
       return sendJSON(res, 200, data.schedule || { assignments: [], openSlots: [] });
     }
 
     if (pathname === '/api/schedule/generate' && req.method === 'POST') {
-      const data = readStore();
+      if (!currentAdmin) {
+        return sendJSON(res, 401, { error: 'Not authenticated.' });
+      }
       const result = buildSchedule(data);
       data.schedule = {
         assignments: result.assignments,
@@ -552,9 +854,11 @@ async function handleRequest(req, res) {
     }
 
     if (pathname.startsWith('/api/schedule/assignment/') && req.method === 'PUT') {
+      if (!currentAdmin) {
+        return sendJSON(res, 401, { error: 'Not authenticated.' });
+      }
       const id = pathname.split('/').pop();
       const payload = await parseBody(req);
-      const data = readStore();
       const assignment = data.schedule.assignments.find((item) => item.id === id);
       if (!assignment) {
         return sendJSON(res, 404, { error: 'Assignment not found.' });
@@ -576,8 +880,10 @@ async function handleRequest(req, res) {
     }
 
     if (pathname === '/api/schedule/assignment' && req.method === 'POST') {
+      if (!currentAdmin) {
+        return sendJSON(res, 401, { error: 'Not authenticated.' });
+      }
       const payload = await parseBody(req);
-      const data = readStore();
       if (!payload.internId || !payload.day || !payload.start || !payload.end) {
         return sendJSON(res, 400, { error: 'Intern, day, start and end are required.' });
       }
@@ -602,8 +908,10 @@ async function handleRequest(req, res) {
     }
 
     if (pathname.startsWith('/api/schedule/assignment/') && req.method === 'DELETE') {
+      if (!currentAdmin) {
+        return sendJSON(res, 401, { error: 'Not authenticated.' });
+      }
       const id = pathname.split('/').pop();
-      const data = readStore();
       const before = data.schedule.assignments.length;
       data.schedule.assignments = data.schedule.assignments.filter((item) => item.id !== id);
       if (data.schedule.assignments.length === before) {
@@ -613,20 +921,31 @@ async function handleRequest(req, res) {
       return sendJSON(res, 200, { success: true });
     }
 
-    // Static assets
-    let filePath = path.join(CLIENT_DIR, pathname === '/' ? 'index.html' : pathname);
+    const relativePath = pathname === '/' ? 'index.html' : pathname.replace(/^\//, '');
+
+    if ((pathname === '/' || pathname === '/index.html' || pathname === '/roster.html') && !currentAdmin) {
+      res.writeHead(302, { Location: '/login.html' });
+      res.end();
+      return;
+    }
+
+    if (pathname === '/login.html' && currentAdmin) {
+      res.writeHead(302, { Location: '/' });
+      res.end();
+      return;
+    }
+
+    const filePath = path.join(CLIENT_DIR, relativePath);
     if (!filePath.startsWith(CLIENT_DIR)) {
       return sendText(res, 403, 'Forbidden');
     }
+
     fs.readFile(filePath, (err, content) => {
       if (err) {
         sendText(res, 404, 'Not Found');
         return;
       }
-      res.writeHead(200, {
-        'Content-Type': getMimeType(filePath),
-        'Access-Control-Allow-Origin': '*'
-      });
+      res.writeHead(200, { 'Content-Type': getMimeType(filePath) });
       res.end(content);
     });
   } catch (error) {
