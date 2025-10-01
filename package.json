@@ -1,0 +1,14 @@
+{
+  "name": "advance-scheduler",
+  "version": "1.0.0",
+  "description": "Web scheduler to balance intern availability with station capacity",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "lint": "node --check server/index.js"
+  },
+  "keywords": ["scheduler", "interns", "calendar"],
+  "author": "",
+  "license": "MIT",
+  "type": "commonjs"
+}

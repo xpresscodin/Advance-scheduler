@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Weekly Roster Overview · Advance Scheduler</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="app-header">
+      <div>
+        <h1>Weekly roster overview</h1>
+        <p class="tagline">See every assignment grouped by weekday without calendar overlap.</p>
+      </div>
+      <div class="header-actions">
+        <a class="link-button secondary" href="index.html">Back to dashboard</a>
+        <span id="lastGenerated" class="timestamp"></span>
+      </div>
+    </header>
+
+    <main class="layout single-column">
+      <section class="panel">
+        <div class="panel-header">
+          <h2>Assignments by day</h2>
+          <p class="muted">Each block represents one intern window, including training pairings and station numbers.</p>
+        </div>
+        <div id="rosterContainer" class="roster-grid" aria-live="polite"></div>
+      </section>
+    </main>
+
+    <script src="roster.js" type="module"></script>
+  </body>
+</html>
