@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Advance Scheduler</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.css" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="app-header">
+      <div>
+        <h1>Advance Scheduler</h1>
+        <p class="tagline">Balance availability requests with real-time station capacity.</p>
+      </div>
+      <div class="header-actions">
+        <a class="link-button secondary" href="availability.html">Intern portal</a>
+        <a class="link-button secondary" href="roster.html">Weekly roster</a>
+        <button id="generateSchedule" class="primary">Generate fresh schedule</button>
+        <span id="lastGenerated" class="timestamp"></span>
+      </div>
+    </header>
+
+    <main class="layout">
+      <aside class="sidebar">
+        <section class="panel" id="availabilityPanel">
+          <h2>1. Manage interns</h2>
+          <form id="internForm" class="form">
+            <div class="form-field">
+              <label for="internName">Intern name</label>
+              <input type="text" id="internName" name="internName" placeholder="e.g. A. Forbes" required />
+            </div>
+            <div class="form-row">
+              <label class="checkbox">
+                <input type="checkbox" id="internTrainer" />
+                <span>Trainer</span>
+              </label>
+              <label class="checkbox">
+                <input type="checkbox" id="internRequiresTrainer" />
+                <span>Requires trainer</span>
+              </label>
+            </div>
+            <button type="submit" class="secondary">Add intern</button>
+          </form>
+
+          <h2>2. Collect availability</h2>
+          <form id="availabilityForm" class="form">
+            <div class="form-field">
+              <label for="availabilityIntern">Intern</label>
+              <select id="availabilityIntern" required></select>
+            </div>
+            <div class="form-row">
+              <div class="form-field">
+                <label for="availabilityDay">Day</label>
+                <select id="availabilityDay" required>
+                  <option value="Monday">Monday</option>
+                  <option value="Tuesday">Tuesday</option>
+                  <option value="Wednesday">Wednesday</option>
+                  <option value="Thursday">Thursday</option>
+                  <option value="Friday">Friday</option>
+                  <option value="Saturday">Saturday</option>
+                  <option value="Sunday">Sunday</option>
+                </select>
+              </div>
+              <div class="form-field">
+                <label for="availabilityStart">Start</label>
+                <input type="time" id="availabilityStart" min="06:00" max="22:00" required />
+              </div>
+              <div class="form-field">
+                <label for="availabilityEnd">End</label>
+                <input type="time" id="availabilityEnd" min="07:00" max="23:00" required />
+              </div>
+            </div>
+            <div class="form-field">
+              <label for="availabilityType">Session type</label>
+              <select id="availabilityType">
+                <option value="independent">Independent</option>
+                <option value="training">Training (requires trainer)</option>
+              </select>
+            </div>
+            <div class="form-field" id="trainerField" hidden>
+              <label for="trainerSelect">Trainer</label>
+              <select id="trainerSelect"></select>
+            </div>
+            <div class="form-field">
+              <label for="availabilityNotes">Notes</label>
+              <textarea id="availabilityNotes" rows="2" placeholder="Optional context or requests"></textarea>
+            </div>
+            <button type="submit" class="primary">Submit availability</button>
+          </form>
+
+          <div class="availability-table">
+            <div class="availability-table-header">
+              <div class="availability-table-title">
+                <h3>Submitted availability</h3>
+                <p class="muted">Scroll the list to review requests and remove entries that no longer apply.</p>
+              </div>
+              <div class="availability-search">
+                <input
+                  type="search"
+                  id="availabilitySearch"
+                  placeholder="Search availability"
+                  aria-label="Search availability"
+                />
+              </div>
+            </div>
+            <div class="availability-table-scroll">
+              <table id="availabilityTable" class="summary-table" hidden>
+                <thead>
+                  <tr>
+                    <th scope="col">Intern</th>
+                    <th scope="col">Day</th>
+                    <th scope="col">Time</th>
+                    <th scope="col">Type</th>
+                    <th scope="col">Trainer</th>
+                    <th scope="col">Notes</th>
+                    <th scope="col" class="actions">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="availabilityTableBody"></tbody>
+              </table>
+            </div>
+            <p id="availabilityEmpty" class="muted availability-empty">No availability submitted yet.</p>
+          </div>
+        </section>
+
+        <section class="panel" id="adminAccessPanel">
+          <h2>Admin access</h2>
+          <div id="adminAlert" class="status-message" hidden></div>
+
+          <div class="admin-overview">
+            <div class="admin-overview-identification">
+              <p class="muted">Active admin</p>
+              <p id="adminWelcome" class="admin-welcome"></p>
+            </div>
+            <div class="admin-overview-actions">
+              <button id="togglePasswordForm" class="secondary" type="button">Change password</button>
+              <button id="logoutButton" class="link-button danger" type="button">Log out</button>
+            </div>
+          </div>
+
+          <form id="changePasswordForm" class="form inline" hidden>
+            <div class="form-field">
+              <label for="currentPassword">Current password</label>
+              <input type="password" id="currentPassword" name="currentPassword" autocomplete="current-password" required />
+            </div>
+            <div class="form-field">
+              <label for="newPassword">New password</label>
+              <input type="password" id="newPassword" name="newPassword" autocomplete="new-password" required />
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="primary">Update password</button>
+              <button type="button" id="cancelPasswordChange" class="link-button subtle">Cancel</button>
+            </div>
+          </form>
+
+          <div class="admin-access-grid">
+            <div class="admin-card">
+              <h3>Add another admin</h3>
+              <p class="muted">Create credentials for a teammate and share the temporary password with them directly.</p>
+              <form id="createAdminForm" class="form">
+                <div class="form-field">
+                  <label for="adminName">Full name</label>
+                  <input type="text" id="adminName" name="adminName" placeholder="e.g. Jordan Rivera" required />
+                </div>
+                <div class="form-field">
+                  <label for="adminEmail">Email</label>
+                  <input type="email" id="adminEmail" name="adminEmail" placeholder="name@example.com" required />
+                </div>
+                <div class="form-field">
+                  <label for="adminUsername">Username</label>
+                  <input type="text" id="adminUsername" name="adminUsername" placeholder="e.g. jrivera" required />
+                </div>
+                <div class="form-field">
+                  <label for="adminPassword">Temporary password <span class="hint">(leave blank to auto-generate)</span></label>
+                  <input type="text" id="adminPassword" name="adminPassword" placeholder="Auto-generate" />
+                </div>
+                <button type="submit" class="secondary">Create admin</button>
+              </form>
+              <div id="newAdminCredentials" class="status-message success" hidden></div>
+            </div>
+
+            <div class="admin-card">
+              <h3>Active admins</h3>
+              <p class="muted">Temporary passwords expire after first use. Require change indicates who still needs to set their own password.</p>
+              <table class="summary-table" id="adminTable" hidden>
+                <thead>
+                  <tr>
+                    <th scope="col">Name</th>
+                    <th scope="col">Email</th>
+                    <th scope="col">Username</th>
+                    <th scope="col">Requires change</th>
+                  </tr>
+                </thead>
+                <tbody id="adminTableBody"></tbody>
+              </table>
+              <p id="adminTableEmpty" class="muted">No additional admins yet.</p>
+            </div>
+          </div>
+        </section>
+      </aside>
+
+      <section class="panel" id="schedulePanel">
+        <div class="panel-header">
+          <h2>3. Curate the floor schedule</h2>
+          <div class="legend">
+            <span class="badge independent">Independent</span>
+            <span class="badge training">Training pair</span>
+            <button id="toggleStations" class="link-button subtle" type="button">Hide station numbers</button>
+          </div>
+        </div>
+        <div id="calendar"></div>
+        <div id="dayViewCounts" class="day-counts" hidden>
+          <div class="day-counts-header">
+            <h3 id="dayViewCountTitle">Day coverage</h3>
+            <p class="muted">Number of people scheduled per hour in this view.</p>
+          </div>
+          <table class="summary-table">
+            <thead>
+              <tr>
+                <th scope="col">Hour</th>
+                <th scope="col">People scheduled</th>
+              </tr>
+            </thead>
+            <tbody id="dayViewCountBody"></tbody>
+          </table>
+        </div>
+
+        <div class="panel-footer">
+          <div>
+            <h3>Open station slots</h3>
+            <ul id="openSlots"></ul>
+          </div>
+          <div>
+            <h3>Fairness overview</h3>
+            <table class="summary-table">
+              <thead>
+                <tr>
+                  <th>Intern</th>
+                  <th>Requested</th>
+                  <th>Assigned</th>
+                </tr>
+              </thead>
+              <tbody id="summaryTableBody"></tbody>
+            </table>
+          </div>
+          <div>
+            <h3>Daily coverage</h3>
+            <table class="summary-table">
+              <thead>
+                <tr>
+                  <th>Day</th>
+                  <th>Assignments</th>
+                  <th>Training pairs</th>
+                </tr>
+              </thead>
+              <tbody id="daySummaryBody"></tbody>
+            </table>
+          </div>
+          <div>
+            <h3>Event controls</h3>
+            <div class="actions">
+              <button id="duplicateAssignment" class="secondary" disabled>Duplicate selected</button>
+              <button id="deleteAssignment" class="danger" disabled>Delete selected</button>
+            </div>
+          </div>
+          <div>
+            <h3>Export schedule</h3>
+            <p class="muted export-note">Share the current week with leadership or import it into other tools.</p>
+            <div class="export-actions">
+              <button id="exportTeams" class="link-button secondary" type="button" disabled>Export for Teams Shifts</button>
+              <button id="exportExcel" class="link-button secondary" type="button" disabled>Download Excel CSV</button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
+    <script src="app.js" type="module"></script>
+  </body>
+</html>

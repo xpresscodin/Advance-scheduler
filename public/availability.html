@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Intern Availability Portal</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="app-header">
+      <div>
+        <h1>Intern Availability Portal</h1>
+        <p class="tagline">Share your preferred hours without accessing the admin console.</p>
+      </div>
+    </header>
+
+    <main class="availability-layout">
+      <section class="panel">
+        <h2>Submit your available hours</h2>
+        <p class="availability-intro">
+          Choose your name, pick a day, and share the time window you would like to work. If you still require a trainer, switch the
+          session type and select the trainer who will accompany you. You can return to this page to review or remove your own
+          submissions at any time.
+        </p>
+
+        <div id="status" class="status-message" hidden></div>
+
+        <form id="availabilityForm" class="form">
+          <div class="form-field">
+            <label for="availabilityIntern">Your name</label>
+            <select id="availabilityIntern" required>
+              <option value="">Select your name</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <div class="form-field">
+              <label for="availabilityDay">Day</label>
+              <select id="availabilityDay" required>
+                <option value="Monday">Monday</option>
+                <option value="Tuesday">Tuesday</option>
+                <option value="Wednesday">Wednesday</option>
+                <option value="Thursday">Thursday</option>
+                <option value="Friday">Friday</option>
+                <option value="Saturday">Saturday</option>
+                <option value="Sunday">Sunday</option>
+              </select>
+            </div>
+            <div class="form-field">
+              <label for="availabilityStart">Start time</label>
+              <input type="time" id="availabilityStart" min="06:00" max="22:00" required />
+            </div>
+            <div class="form-field">
+              <label for="availabilityEnd">End time</label>
+              <input type="time" id="availabilityEnd" min="07:00" max="23:00" required />
+            </div>
+          </div>
+          <div class="form-field">
+            <label for="availabilityType">Session type</label>
+            <select id="availabilityType">
+              <option value="independent">Independent</option>
+              <option value="training">Training (requires trainer)</option>
+            </select>
+          </div>
+          <div class="form-field" id="trainerField" hidden>
+            <label for="trainerSelect">Trainer</label>
+            <select id="trainerSelect">
+              <option value="">Select a trainer</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label for="availabilityNotes">Notes <span class="hint">(optional)</span></label>
+            <textarea id="availabilityNotes" rows="2" placeholder="Include course breaks or context if needed"></textarea>
+          </div>
+          <div class="form-actions">
+            <button type="button" id="addWindowButton" class="secondary">Add time window</button>
+            <button type="submit" id="submitAvailabilityButton" class="primary">Submit windows</button>
+          </div>
+        </form>
+
+        <div class="pending-section" id="pendingSection" hidden>
+          <h3>Windows ready to submit</h3>
+          <ul id="pendingList" class="pending-list"></ul>
+          <p class="hint">All listed windows will be saved together when you submit.</p>
+        </div>
+
+        <div class="availability-table" id="availabilityTable" hidden>
+          <h3>Your submitted windows</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Day</th>
+                <th>Time</th>
+                <th>Type</th>
+                <th class="actions"></th>
+              </tr>
+            </thead>
+            <tbody id="availabilityTableBody"></tbody>
+          </table>
+          <p class="empty-state" id="emptyState" hidden>No availability has been submitted yet.</p>
+        </div>
+      </section>
+    </main>
+
+    <template id="availabilityRowTemplate">
+      <tr>
+        <td class="availability-day"></td>
+        <td class="availability-time"></td>
+        <td class="availability-type"></td>
+        <td class="actions"><button class="danger small" type="button">Remove</button></td>
+      </tr>
+    </template>
+
+    <template id="pendingWindowTemplate">
+      <li class="pending-item">
+        <div class="pending-item-details">
+          <p class="pending-item-time"></p>
+          <p class="pending-item-meta"></p>
+          <p class="pending-item-notes" hidden></p>
+        </div>
+        <button type="button" class="danger small">Remove</button>
+      </li>
+    </template>
+
+    <script src="availability.js" type="module"></script>
+  </body>
+</html>
